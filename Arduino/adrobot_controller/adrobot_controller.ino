@@ -17,21 +17,21 @@
 #include <Adafruit_ST7735.h>
 
 #define I2C_ADDRESS 0x08  // I2C address for the Arduino Mega 
+#define SABERTOO_ADDR 128
 String I2CInboundString = ""; // Buffer for storing the received data
+int driveDeadBandRange = 10;
+Sabertooth *ST=new Sabertooth(SABERTOOTH_ADDR, Serial1); //TX1 – Pin#18
 
-// ---------------------------------------------------------------------------------------
-//    Servo initialization
-// ---------------------------------------------------------------------------------------
-Servo myServo;
-long servoMillis = millis();
-
-
+int currSpeed = 0;
+int currTurn = 0;
+boolean robotMoving = false;
 
 // ---------------------------------------------------------------------------------------
 //    Request State Machine Variables for PS5 Controller
 // ---------------------------------------------------------------------------------------
 // Main flag to see if the PS5 Controller is sending data
 boolean PS5ControllerLive = false;
+PS5ControllerLive = true;
 
 // Main state varable to determine if a request has been made by the PS3 Controller
 boolean reqMade = false;
@@ -93,40 +93,42 @@ long currentTime = millis();
 // =======================================================================================
 //                                Setup Function
 // =======================================================================================
-void setup()
-{
+void setup() {
   
-    //Initialize Serial @ 115200 baud rate for Serial Monitor Debugging
-    Serial.begin(115200);
-    while (!Serial);
-    
-    Serial.println("Arduino Robot Controller Started");
-
-    //Start I2C communication for PS5 controller data channel from Raspberry Pi
-    Wire.begin(I2C_ADDRESS);  // Initialize the Arduino as an I2C slave
-    Wire.onReceive(receivePS5Data); // Register the receive event handler
-
-    //Start Serial3 for all non-PS5 messages from the Raspberry Pi
-    Serial3.begin(115200);
-    while (!Serial3);
-    
-    //Setup PIN 13 for Arduino Main Loop Blinker Routine
-    pinMode(13, OUTPUT);
-    digitalWrite(13, LOW);
-
-   // ----------------------------------------------
-   // YOUR SETUP CONTROL CODE SHOULD START HERE
-   // ----------------------------------------------
+  //Initialize Serial @ 115200 baud rate for Serial Monitor Debugging
+  Serial.begin(115200);
+  while (!Serial);
   
+  Serial.println("Arduino Robot Controller Started");
+
+  //Start I2C communication for PS5 controller data channel from Raspberry Pi
+  Wire.begin(I2C_ADDRESS);  // Initialize the Arduino as an I2C slave
+  Wire.onReceive(receivePS5Data); // Register the receive event handler
+
+  //Start Serial3 for all non-PS5 messages from the Raspberry Pi
+  Serial3.begin(115200);
+  while (!Serial3);
+  
+  //Setup PIN 13 for Arduino Main Loop Blinker Routine
+  pinMode(13, OUTPUT);
+  digitalWrite(13, LOW);
+
+  // ----------------------------------------------
+  // YOUR SETUP CONTROL CODE SHOULD START HERE
+  // ----------------------------------------------
+
   myServo.attach(9);
   myServo.write(90);
   currServoPos = 90;
 
+  Serial1.begin(9600); //Start TX1 – Pin#18 – Motor Controller
+  ST->autobaud();
+  ST->setTimeout(200);
+  ST->setDeadband(driveDeadBandRange);
 
-
-   // ----------------------------------------------
-   // YOUR SETUP CONTROL CODE SHOULD END HERE
-   // ---------------------------------------------
+  // ----------------------------------------------
+  // YOUR SETUP CONTROL CODE SHOULD END HERE
+  // ---------------------------------------------
 }
 
 // =======================================================================================
@@ -137,49 +139,22 @@ void loop()
    currentTime = millis();
 
    check_inbound_serial_message();
-   PS5ControllerLive = true;
 
    // If the PS5 controller is sending data - start processing the main controller routines
-   if (PS5ControllerLive) {
+    if (PS5ControllerLive) {
 
-       // ----------------------------------------------
-       // YOUR MAIN LOOP CONTROL CODE SHOULD START HERE
-       // ----------------------------------------------
+      // ----------------------------------------------
+      // YOUR MAIN LOOP CONTROL CODE SHOULD START HERE
+      // ----------------------------------------------
+      moveRobot();
 
-	checkServo();
+	    // checkServo();
        // Sample droid function call from PS5 request - REMOVE ONCE YOU UNDERSTAND STRUCTURE
-       if (reqSquare) {
-          square();
-       } if (reqCircle) {
-          circle();
-       }
-
-       if (reqLeftJoyDown) {
-        leftJoyDown();
-       }
-       if (reqLeftJoyUp) {
-        leftJoyUp();
-       }
-       if (reqLeftJoyLeft) {
-        leftJoyLeft();
-       }
-       if (reqLeftJoyRight) {
-        leftJoyRight();
-       }
-//       if (reqRightJoyDown) {
-//        rightJoyDown();
-//       }
-//       if (reqRightJoyUp) {
-//        rightJoyUp();
-//       }
-//       if (reqRightJoyRight) {
-//        rightJoyRight();
-//       }
-//       if (reqRightJoyLeft) {
-//        rightJoyLeft();
-//       }
-    
-    
+      //  if (reqSquare) {
+      //     square();
+      //  } if (reqCircle) {
+      //     circle();
+      //  }
     
        // ----------------------------------------------
        // YOUR MAIN LOOP CONTROL CODE SHOULD END HERE
@@ -209,38 +184,66 @@ void loop()
 // =======================================================================================
 //      ADD YOUR CUSTOM DROID FUNCTIONS STARTING HERE
 // =======================================================================================
+void moveRobot() {
+  if (reqLeftJoyMade) {
+    currSpeed = reqLeftJoyYValue;
+    currTurn = reqLeftJoyXValue;
+    ST->turn(currTurn);
+    ST->drive(currSpeed);
+    if (!robotMoving){
+      robotMoving = true;
+    }
+  } else {
+    if (robotMoving) {
+      ST->stop();
+      robotMoving = false;
+      currentTurn = 0;
+      currentSpeed = 0;
+    }
+  }
+}
 void checkServo(){
-	if(reqArrowUp && currServoPos!=140){
-		myServo.write(140);
-		currServoPos = 140;
-	}
-	if (reqLeftJoyLef || reqLeftJoyRight) && !servoRoutineInitialized){
+	// if(reqArrowUp && currServoPos!=140){
+	// 	myServo.write(140);
+	// 	currServoPos = 140;
+	// }
+	if (reqLeftJoyLeft || reqLeftJoyRight) && !servoRoutineInitialized){
 		servoMillis = millis();
 		servoMoving = true;
 		servoRoutineInitialized = true;
 	}
-	if(reqLeftJoyLeft && (servoMillis+50) < millis() && servoRoutineInitialized){
-		if(currServoPos = 140){
-			currServoPos = currServoPos + 15;
+  //left
+	if(reqLeftJoyLeft && (servoMillis+50 < millis()) && servoRoutineInitialized){
+		if(currServoPos < 140){
+			currServoPos = min(currServoPos + 15,140);
 			myServo.write(currServoPos);
 			servoMillis = millis();
 		} else {
 			servoMillis = millis();
 		}
 	}
-	// right joystick
+  // right
+	if(reqRightJoyLeft && (servoMillis+50 < millis()) && servoRoutineInitialized){
+		if(currServoPos > 0){
+			currServoPos = max(currServoPos - 15,0);
+			myServo.write(currServoPos);
+			servoMillis = millis();
+		} else {
+      servoMillis = millis();
+		}
+	}
 	// joystick movement reset
-	if (!reqLeftJoyLeft && ! reqRightJoyRight){
-
+	if (!reqLeftJoyLeft && !reqRightJoyRight && servoRoutineInitialized){
+    currServoPos = 90;
+    myServo.write(currServoPos);
+    servoMillis = millis();
 	}
 }
-void circle()
-{
+void circle(){
     Serial.println("circle function");
     myServo.write(0);
 }
-void square()
-{
+void square(){
     Serial.println("square function");
     myServo.write(140);
 }
