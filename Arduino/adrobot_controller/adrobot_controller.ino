@@ -184,7 +184,7 @@ void loop()
 // =======================================================================================
 //      ADD YOUR CUSTOM DROID FUNCTIONS STARTING HERE
 // =======================================================================================
-void rampSpeed(int currSpeed, int targetSpeed, int ramp) {
+int rampSpeed(int currSpeed, int targetSpeed, int ramp) {
   if (abs(targetSpeed - currSpeed)<=ramp){
     return targetSpeed;
   } if (targetSpeed > currSpeed) {
@@ -200,7 +200,7 @@ void moveRobot() {
       currSpeed = rampSpeed(currSpeed, reqLeftJoyYValue, 10);
       Serial.print("currSpeed: ");
       Serial.println(currSpeed);
-      currTurn = reqLeftJoyXValue;
+      currTurn = rampSpeed(currTurn,reqLeftJoyXValue, 1);
       ST->turn(currTurn);
       ST->drive(currSpeed*-1);
       if (!robotMoving){
