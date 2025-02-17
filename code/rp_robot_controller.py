@@ -27,7 +27,7 @@ firstMessage = True
 stop_event = threading.Event() # Used to gracefully stop threads on program exit
 
 # Define debounce time for PS5 controller inputs in seconds
-debounce_time = 0.00
+debounce_time = 0.01
 
 # Helper function to debounce PS5 controller buttons
 last_press_time = {}
@@ -163,6 +163,7 @@ def check_controls(joystick):
         ly = joystick.get_axis(1)
         
         if abs(lx) > 0.1 or abs(ly) > 0.1:
+            leftJoyStopped = False
             lxInt = int(lx * 100)
             lyInt = int(ly * 100)
             
@@ -186,6 +187,16 @@ def check_controls(joystick):
             sendString = "JL" + signXString + f"{lxInt:03}" + "#" + signYString + f"{lyInt:03}" + "%"
             print("Joystick Left data sent: " + sendString)
             send_i2c_PS5_data(bus, sendString)
+        else:
+            if not leftJoyStopped:
+                leftJoyStopped = True
+                lxInt = 0
+                lyInt = 0
+                signXString = ""
+                signYString = "" 
+                sendString = "JL" + signXString + f"{lxInt:03}" + "#" + signYString + f"{lyInt:03}" + "%"
+                print("Joystick Left data sent: " + sendString)
+                send_i2c_PS5_data(bus, sendString)
 
        # Check right joystick
         rx = joystick.get_axis(3)

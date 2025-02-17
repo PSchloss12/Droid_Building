@@ -17,7 +17,7 @@
 #include <Adafruit_ST7735.h>
 
 #define I2C_ADDRESS 0x08  // I2C address for the Arduino Mega 
-#define SABERTOO_ADDR 128
+#define SABERTOOTH_ADDR 128
 String I2CInboundString = ""; // Buffer for storing the received data
 int driveDeadBandRange = 10;
 Sabertooth *ST=new Sabertooth(SABERTOOTH_ADDR, Serial1); //TX1 – Pin#18
@@ -30,8 +30,8 @@ boolean robotMoving = false;
 //    Request State Machine Variables for PS5 Controller
 // ---------------------------------------------------------------------------------------
 // Main flag to see if the PS5 Controller is sending data
-boolean PS5ControllerLive = false;
-PS5ControllerLive = true;
+boolean PS5ControllerLive = true;
+//PS5ControllerLive = true;
 
 // Main state varable to determine if a request has been made by the PS3 Controller
 boolean reqMade = false;
@@ -118,8 +118,8 @@ void setup() {
   // ----------------------------------------------
 
   myServo.attach(9);
-  myServo.write(90);
-  currServoPos = 90;
+//  myServo.write(90);
+//  currServoPos = 90;
 
   Serial1.begin(9600); //Start TX1 – Pin#18 – Motor Controller
   ST->autobaud();
@@ -186,65 +186,70 @@ void loop()
 // =======================================================================================
 void moveRobot() {
   if (reqLeftJoyMade) {
-    currSpeed = reqLeftJoyYValue;
-    currTurn = reqLeftJoyXValue;
-    ST->turn(currTurn);
-    ST->drive(currSpeed);
-    if (!robotMoving){
-      robotMoving = true;
+    if (abs(reqLeftJoyYValue) > 50 || abs(reqLeftJoyXValue) > 50) {
+      currSpeed = reqLeftJoyYValue;
+      Serial.print("currSpeed: ");
+      Serial.println(currSpeed);
+      currTurn = reqLeftJoyXValue;
+      ST->turn(currTurn);
+      ST->drive(currSpeed);
+      if (!robotMoving){
+        robotMoving = true;
+      }
     }
   } else {
-    if (robotMoving) {
+    
+//    Serial.println(robotMoving);
+//    if (robotMoving) {
+//      if (reqLeftJoyYValue){
       ST->stop();
       robotMoving = false;
-      currentTurn = 0;
-      currentSpeed = 0;
-    }
+      currTurn = 0;
+      currSpeed = 0;
+//    }
   }
 }
-void checkServo(){
-	// if(reqArrowUp && currServoPos!=140){
-	// 	myServo.write(140);
-	// 	currServoPos = 140;
-	// }
-	if (reqLeftJoyLeft || reqLeftJoyRight) && !servoRoutineInitialized){
-		servoMillis = millis();
-		servoMoving = true;
-		servoRoutineInitialized = true;
-	}
-  //left
-	if(reqLeftJoyLeft && (servoMillis+50 < millis()) && servoRoutineInitialized){
-		if(currServoPos < 140){
-			currServoPos = min(currServoPos + 15,140);
-			myServo.write(currServoPos);
-			servoMillis = millis();
-		} else {
-			servoMillis = millis();
-		}
-	}
-  // right
-	if(reqRightJoyLeft && (servoMillis+50 < millis()) && servoRoutineInitialized){
-		if(currServoPos > 0){
-			currServoPos = max(currServoPos - 15,0);
-			myServo.write(currServoPos);
-			servoMillis = millis();
-		} else {
-      servoMillis = millis();
-		}
-	}
-	// joystick movement reset
-	if (!reqLeftJoyLeft && !reqRightJoyRight && servoRoutineInitialized){
-    currServoPos = 90;
-    myServo.write(currServoPos);
-    servoMillis = millis();
-	}
-}
+//void checkServo(){
+//	// if(reqArrowUp && currServoPos!=140){
+//	// 	myServo.write(140);
+//	// 	currServoPos = 140;
+//	// }
+//	if (reqLeftJoyLeft || reqLeftJoyRight) && !servoRoutineInitialized){
+//		servoMillis = millis();
+//		servoMoving = true;
+//		servoRoutineInitialized = true;
+//	}
+//  //left
+//	if(reqLeftJoyLeft && (servoMillis+50 < millis()) && servoRoutineInitialized){
+//		if(currServoPos < 140){
+//			currServoPos = min(currServoPos + 15,140);
+//			myServo.write(currServoPos);
+//			servoMillis = millis();
+//		} else {
+//			servoMillis = millis();
+//		}
+//	}
+//  // right
+//	if(reqRightJoyLeft && (servoMillis+50 < millis()) && servoRoutineInitialized){
+//		if(currServoPos > 0){
+//			currServoPos = max(currServoPos - 15,0);
+//			myServo.write(currServoPos);
+//			servoMillis = millis();
+//		} else {
+//      servoMillis = millis();
+//		}
+//	}
+//	// joystick movement reset
+//	if (!reqLeftJoyLeft && !reqRightJoyRight && servoRoutineInitialized){
+//    currServoPos = 90;
+//    myServo.write(currServoPos);
+//    servoMillis = millis();
+//	}
+//}
 void circle(){
-    Serial.println("circle function");
     myServo.write(0);
 }
 void square(){
-    Serial.println("square function");
     myServo.write(140);
 }
 void leftJoyDown(){
