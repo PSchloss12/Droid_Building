@@ -2,20 +2,42 @@ import cv2
 from picamera2 import Picamera2
 import time
 import sys
+import os
+import re
+
+def get_next_image_number(directory, base_name, extension="jpg"):
+    pattern = re.compile(rf"{re.escape(base_name)}_(\d+)\.{extension}$")
+
+    # Extract numbers from existing files
+    numbers = []
+    if os.path.exists(directory):
+        for filename in os.listdir(directory):
+            match = pattern.match(filename)
+            if match:
+                numbers.append(int(match.group(1)))  # Extract number
+
+    # Find the next available number
+    next_number = max(numbers) + 1 if numbers else 0
+    return next_number
 
 def help():
-    print(f"python3 capture_image.py num_images")
+    print(f"python3 capture_image.py image_base_name num_images")
     exit()
 
 def main():
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         help()
     
     try:
-        num_images = int(num_images)
+        num_images = int(sys.argv[2])
     except Exception as ex:
         print(ex)
         help()
+
+    out_dir = "images"
+    base_name = sys.argv[1]
+    extension = "jpg"
+    image_number = get_next_image_number(directory=out_dir, base_name=base_name, extension=extension)
 
     # Initialize Picamera2
     picam2 = Picamera2()
@@ -32,7 +54,7 @@ def main():
 
     for i in range(num_images):
         # Capture image
-        picam2.capture_file("image.jpg")
+        picam2.capture_file(f"{out_dir}{base_name}_{image_number+i}.{extension}")
         time.sleep(0.3)
 
     # Stop the camera
