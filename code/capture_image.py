@@ -54,7 +54,7 @@ def main():
 
     for i in range(num_images):
         # Capture image
-        picam2.capture_file(f"{out_dir}{base_name}_{image_number+i}.{extension}")
+        picam2.capture_file(f"{out_dir}/{base_name}_{image_number+i}.{extension}")
         time.sleep(0.3)
 
     # Stop the camera

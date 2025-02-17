@@ -86,6 +86,7 @@ def is_debounced(key):
 
 # Used to send any PS5 controller inputs to the Arduino
 def check_controls(joystick):
+    
     # Check buttons
     with SMBus(I2C_BUS) as bus:
         if joystick.get_button(0) and is_debounced(0):
@@ -162,6 +163,7 @@ def check_controls(joystick):
         lx = joystick.get_axis(0)
         ly = joystick.get_axis(1)
         
+        leftJoyStopped = False
         if abs(lx) > 0.1 or abs(ly) > 0.1:
             leftJoyStopped = False
             lxInt = int(lx * 100)
