@@ -27,7 +27,7 @@ firstMessage = True
 stop_event = threading.Event() # Used to gracefully stop threads on program exit
 
 # Define debounce time for PS5 controller inputs in seconds
-debounce_time = 0.5
+debounce_time = 0.00
 
 # Helper function to debounce PS5 controller buttons
 last_press_time = {}
