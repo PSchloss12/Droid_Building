@@ -198,15 +198,13 @@ int deltaSpeed(int currSpeed, int targetSpeed, double acceleration) {
 
 void moveRobot() {
   if (reqLeftJoyMade) {
-    if (abs(reqLeftJoyYValue) > 50 || abs(reqLeftJoyXValue) > 50) {
+    // if (abs(reqLeftJoyYValue) > 50 || abs(reqLeftJoyXValue) > 50) {
       currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue, 0.2);
       currTurn = deltaSpeed(currTurn,reqLeftJoyXValue, 0.1);
       ST->turn(currTurn);
       ST->drive(currSpeed*-1);
-      if (!robotMoving){
-        robotMoving = true;
-      }
-    }
+      robotMoving = true;
+    // }
   } 
   // Self-driving case
   // else if () {}
