@@ -197,7 +197,7 @@ int rampSpeed(int currSpeed, int targetSpeed, int ramp) {
 void moveRobot() {
   if (reqLeftJoyMade) {
     if (abs(reqLeftJoyYValue) > 50 || abs(reqLeftJoyXValue) > 50) {
-      currSpeed = rampSpeed(currSpeed, reqLeftJoyYValue, 10);
+      currSpeed = rampSpeed(currSpeed, reqLeftJoyYValue, 2);
       Serial.print("currSpeed: ");
       Serial.println(currSpeed);
       currTurn = rampSpeed(currTurn,reqLeftJoyXValue, 1);
@@ -208,15 +208,17 @@ void moveRobot() {
       }
     }
   } else {
-    
-//    Serial.println(robotMoving);
-//    if (robotMoving) {
-//      if (reqLeftJoyYValue){
-      ST->stop();
-      robotMoving = false;
-      currTurn = 0;
-      currSpeed = 0;
-//    }
+    if (robotMoving){
+      currSpeed = rampSpeed(currSpeed, 0, 5);
+      currTurn = rampSpeed(currTurn, 0, 5);
+      if (currSpeed>0 || currTurn>0){
+        ST->drive(currSpeed*-1);
+        ST->turn(currTurn);
+      } else {
+        ST->stop();
+        robotMoving = false;
+      }
+    }
   }
 }
 //void checkServo(){

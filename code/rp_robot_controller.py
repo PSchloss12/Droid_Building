@@ -192,11 +192,12 @@ def check_controls(joystick):
         else:
             if not leftJoyStopped:
                 leftJoyStopped = True
-                lxInt = 0
-                lyInt = 0
-                signXString = ""
-                signYString = "" 
-                sendString = "JL" + signXString + f"{lxInt:03}" + "#" + signYString + f"{lyInt:03}" + "%"
+                # lxInt = 0
+                # lyInt = 0
+                # signXString = ""
+                # signYString = "" 
+                # sendString = "JL" + signXString + f"{lxInt:03}" + "#" + signYString + f"{lyInt:03}" + "%"
+                sendString = "JL"
                 print("Joystick Left data sent: " + sendString)
                 send_i2c_PS5_data(bus, sendString)
 
