@@ -16,6 +16,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 
+#define sign(x) ((x) < 0 ? -1 : 1)
 #define I2C_ADDRESS 0x08  // I2C address for the Arduino Mega 
 #define SABERTOOTH_ADDR 128
 String I2CInboundString = ""; // Buffer for storing the received data
@@ -184,33 +185,35 @@ void loop()
 // =======================================================================================
 //      ADD YOUR CUSTOM DROID FUNCTIONS STARTING HERE
 // =======================================================================================
-int rampSpeed(int currSpeed, int targetSpeed, int ramp) {
-  if (abs(targetSpeed - currSpeed)<=ramp){
-    return targetSpeed;
-  } if (targetSpeed > currSpeed) {
-    return currSpeed + ramp;
+int deltaSpeed(int currSpeed, int targetSpeed, double acceleration) {
+  if (abs(targetSpeed - currSpeed)<=1){
+    return (int)(targetSpeed - currSpeed + 0.5 * sign(targetSpeed));
+  } 
+  if (targetSpeed > currSpeed) {
+    return (int)((targetSpeed - currSpeed) * acceleration);
   } else {
-    return currSpeed - ramp;
+    return (int)((currSpeed - targetSpeed) * acceleration);
   }
 }
 
 void moveRobot() {
   if (reqLeftJoyMade) {
     if (abs(reqLeftJoyYValue) > 50 || abs(reqLeftJoyXValue) > 50) {
-      currSpeed = rampSpeed(currSpeed, reqLeftJoyYValue, 2);
-      Serial.print("currSpeed: ");
-      Serial.println(currSpeed);
-      currTurn = rampSpeed(currTurn,reqLeftJoyXValue, 1);
+      currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue, 0.2);
+      currTurn = deltaSpeed(currTurn,reqLeftJoyXValue, 0.1);
       ST->turn(currTurn);
       ST->drive(currSpeed*-1);
       if (!robotMoving){
         robotMoving = true;
       }
     }
-  } else {
+  } 
+  // Self-driving case
+  // else if () {}
+  else {
     if (robotMoving){
-      currSpeed = rampSpeed(currSpeed, 0, 5);
-      currTurn = rampSpeed(currTurn, 0, 5);
+      currSpeed = deltaSpeed(currSpeed, 0, -0.5);
+      currTurn = deltaSpeed(currTurn, 0, -0.5);
       if (currSpeed>0 || currTurn>0){
         ST->drive(currSpeed*-1);
         ST->turn(currTurn);
@@ -220,6 +223,8 @@ void moveRobot() {
       }
     }
   }
+  Serial.print("currSpeed: ");
+  Serial.println(currSpeed);
 }
 //void checkServo(){
 //	// if(reqArrowUp && currServoPos!=140){
