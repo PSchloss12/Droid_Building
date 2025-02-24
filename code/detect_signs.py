@@ -32,7 +32,9 @@ def detect_sign(cam, model):
     color = 'green' if len(detected_classes)>0 else 'red'
     print("Detected:", end=' ')
     color_print(detected_classes, color)
-    return detected_classes[0]
+    if len(detected_classes) > 0:
+        return detected_classes[0]
+    return ""
 
 if __name__ == '__main__':
     # Initialize Picamera2

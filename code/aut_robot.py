@@ -70,7 +70,7 @@ def camera_loop(ser):
             direction = detect_sign(camera, model)
             print(direction)
             if direction:
-                send_serial_message(ser, direction)
+                send_serial_message(ser, direction.upper())
         if stop_event.is_set():
             break
 

@@ -26,7 +26,7 @@ Sabertooth *ST=new Sabertooth(SABERTOOTH_ADDR, Serial1); //TX1 – Pin#18
 int currSpeed = 0;
 int currTurn = 0;
 boolean robotMoving = false;
-boolean autonomous = false;
+boolean autonomous = true;
 
 // ---------------------------------------------------------------------------------------
 //    Request State Machine Variables for PS5 Controller
@@ -75,6 +75,9 @@ boolean reqOptions = false;
 boolean reqPS = false;
 boolean reqJSLeftButton = false;
 boolean reqJSRightButton = false;
+
+String command;
+boolean commandRecieved = false;
 
 Servo myServo;
 
@@ -149,7 +152,7 @@ void loop()
       // YOUR MAIN LOOP CONTROL CODE SHOULD START HERE
       // ----------------------------------------------
       if (autonomous){
-
+        decide();
       } else {
         moveRobot();
       }
@@ -229,6 +232,19 @@ void moveRobot() {
   Serial.print("currSpeed: ");
   Serial.println(currSpeed);
 }
+
+void decide(){
+  if (commandRecieved){
+    switch (command) {
+      case "LEFT": turn(command); break;
+      case "RIGHT": turn(command); break;
+      case "FORWARD": break;
+      case "STOP": break;
+      default: break;
+    }
+  }
+}
+
 void turn(String direction){
   // Blocking Turn function
   int speed = 100;
@@ -607,7 +623,13 @@ void check_inbound_serial_message() {
       }
 
       // Based on the inbound message - SET YOUR STATE VARIABLES HERE
-      Serial.println(message);
+      if (message.lenght()>0){
+        Serial.println("Adruino recievd: " + message);
+        commandRecieved = true;
+        command = message;
+      } else {
+        commandRecieved = false;
+      }
 
       // Clear the message buffer for the next message
       message = "";
