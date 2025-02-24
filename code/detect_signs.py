@@ -33,7 +33,7 @@ def detect_sign(cam, model):
     print("Detected:", end=' ')
     color_print(detected_classes, color)
     if len(detected_classes) > 0:
-        return detected_classes[0]
+        return str(detected_classes[0])
     return ""
 
 if __name__ == '__main__':
@@ -66,4 +66,4 @@ if __name__ == '__main__':
         print("Detected:", end=' ')
         color_print(detected_classes, color)
 
-        time.sleep(0.5)
+        time.sleep(1)

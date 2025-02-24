@@ -214,7 +214,6 @@ void moveRobot() {
       robotMoving = true;
     // }
   } 
-  // Self-driving case
   // else if () {}
   else {
     if (robotMoving){
@@ -235,14 +234,18 @@ void moveRobot() {
 
 void decide(){
   if (commandRecieved){
-    switch (command) {
-      case "LEFT": turn(command); break;
-      case "RIGHT": turn(command); break;
-      case "FORWARD": break;
-      case "STOP": break;
-      default: break;
+    if (command=="LEFT"){
+      turn(command);
+    } else if (command=="RIGHT"){
+      turn(command);
+    } else if (command=="STOP"){
+      Serial.println("stop");
+    } else if (command=="FORWARD"){
+      Serial.println("forward");
     }
   }
+  command = "";
+  commandRecieved = false;
 }
 
 void turn(String direction){
@@ -250,24 +253,28 @@ void turn(String direction){
   int speed = 100;
   int timeToMove = 1000; // how long to move before turn
   int turnTime = 500;
-  for (int i = 0; i <= speed; i += 10) {
-    ST->drive(i);
-    delay(50); // Small delay for smooth acceleration
-  }
+//  for (int i = 0; i <= speed; i += 10) {
+//    ST->drive(i*-1);
+//    delay(50); // Small delay for smooth acceleration
+//  }
+  ST->drive(speed);
   delay(timeToMove);
-  for (int i = speed; i >= 0; i -= 10) {
-    ST->drive(i);
-    delay(50);
-  }
+  ST->drive(speed);
+//  for (int i = speed; i >= 0; i -= 10) {
+//    ST->drive(i*-1);
+//    delay(50);
+//  }
   // begin turn
-  if (direction == "left") {
-    ST->turn(speed);
-  } else if (direction == "right") {
-    ST->turn(speed*-1);
-  } 
-  delay(turnTime);
-  ST->turn(0);
+//  if (direction == "left") {
+//    ST->turn(speed);
+//  } else if (direction == "right") {
+//    ST->turn(speed*-1);
+//  } 
+//  delay(turnTime);
+//  ST->turn(0);
+//  ST->turn(speed);
 }
+
 //void checkServo(){
 //	// if(reqArrowUp && currServoPos!=140){
 //	// 	myServo.write(140);
@@ -623,8 +630,8 @@ void check_inbound_serial_message() {
       }
 
       // Based on the inbound message - SET YOUR STATE VARIABLES HERE
-      if (message.lenght()>0){
-        Serial.println("Adruino recievd: " + message);
+      if (message.length()>0){
+//        Serial.println("Adruino recievd: " + message);
         commandRecieved = true;
         command = message;
       } else {
