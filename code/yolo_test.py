@@ -13,8 +13,8 @@ def preprocess_image(frame):
 
 model = YOLO('yolo11n.tflite')  # best_float32
 # model.train(data='mnist160', epochs=3)  # train the model
-print('ready')
-frame = preprocess_image('data\\s_1.jpg')
+print('Press enter to process...')
+frame = preprocess_image('data\\left_1.jpg')
 results = model(frame)  # predict on an image
 
 detected_class_names = []

@@ -5,11 +5,12 @@ from ultralytics import YOLO
 from ColorPrint import color_print
 
 def initialize():
+    '''
+    returns camera, model
+    '''
     picam2 = Picamera2()
     config = picam2.create_still_configuration(
         main={"size": (640, 480), "format": "RGB888"},  # Small but clear resolution, RGB for ML models
-        lores={"size": (320, 240)},  # Optional low-res for faster preview if needed
-        display="lores"  # Use low-res for previewing (if using)
     )
     picam2.configure(config)
     picam2.start()
@@ -46,7 +47,8 @@ if __name__ == '__main__':
     picam2.start()
     # load model
     print('Loading YOLO model...')
-    model = YOLO('yolo11n.tflite')
+    version = 'yolo11n.tflite'
+    model = YOLO(version)
     print('Model loaded!')
 
     while 1:

@@ -197,7 +197,7 @@ def check_controls(joystick):
                 # signXString = ""
                 # signYString = "" 
                 # sendString = "JL" + signXString + f"{lxInt:03}" + "#" + signYString + f"{lyInt:03}" + "%"
-                sendString = "STOP  "
+                sendString = "STOP%"
                 print("Joystick Left data sent: " + sendString)
                 send_i2c_PS5_data(bus, sendString)
 
@@ -229,7 +229,7 @@ def check_controls(joystick):
             print("Joystick Right data sent: " + sendString)
             send_i2c_PS5_data(bus, sendString)
             
-def map_integer(value, old_min, old_max, new_min, new_max):
+def map_integer(value, ol-d_min, old_max, new_min, new_max):
     # Ensure the old range is valid
     if old_max - old_min == 0:
         raise ValueError("Old range cannot be zero")

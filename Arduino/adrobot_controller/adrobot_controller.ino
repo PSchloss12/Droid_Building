@@ -26,6 +26,7 @@ Sabertooth *ST=new Sabertooth(SABERTOOTH_ADDR, Serial1); //TX1 – Pin#18
 int currSpeed = 0;
 int currTurn = 0;
 boolean robotMoving = false;
+boolean autonomous = false;
 
 // ---------------------------------------------------------------------------------------
 //    Request State Machine Variables for PS5 Controller
@@ -147,7 +148,11 @@ void loop()
       // ----------------------------------------------
       // YOUR MAIN LOOP CONTROL CODE SHOULD START HERE
       // ----------------------------------------------
-      moveRobot();
+      if (autonomous){
+
+      } else {
+        moveRobot();
+      }
 
 	    // checkServo();
        // Sample droid function call from PS5 request - REMOVE ONCE YOU UNDERSTAND STRUCTURE
@@ -223,6 +228,29 @@ void moveRobot() {
   }
   Serial.print("currSpeed: ");
   Serial.println(currSpeed);
+}
+void turn(String direction){
+  // Blocking Turn function
+  int speed = 100;
+  int timeToMove = 1000; // how long to move before turn
+  int turnTime = 500;
+  for (int i = 0; i <= speed; i += 10) {
+    ST->drive(i);
+    delay(50); // Small delay for smooth acceleration
+  }
+  delay(timeToMove);
+  for (int i = speed; i >= 0; i -= 10) {
+    ST->drive(i);
+    delay(50);
+  }
+  // begin turn
+  if (direction == "left") {
+    ST->turn(speed);
+  } else if (direction == "right") {
+    ST->turn(speed*-1);
+  } 
+  delay(turnTime);
+  ST->turn(0);
 }
 //void checkServo(){
 //	// if(reqArrowUp && currServoPos!=140){
@@ -576,9 +604,10 @@ void check_inbound_serial_message() {
           PS5ControllerLive = true;
           Serial.println("The Raspberry Pi is sending data");
           send_serial_message("SysLive");
-      }   
+      }
 
       // Based on the inbound message - SET YOUR STATE VARIABLES HERE
+      Serial.println(message);
 
       // Clear the message buffer for the next message
       message = "";
