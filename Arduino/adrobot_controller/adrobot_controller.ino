@@ -15,6 +15,7 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
+#include <math.h>
 
 #define sign(x) ((x) < 0 ? -1 : 1)
 #define I2C_ADDRESS 0x08  // I2C address for the Arduino Mega 
@@ -26,7 +27,7 @@ Sabertooth *ST=new Sabertooth(SABERTOOTH_ADDR, Serial1); //TX1 – Pin#18
 int currSpeed = 0;
 int currTurn = 0;
 boolean robotMoving = false;
-boolean autonomous = true;
+boolean autonomous = false;
 
 // ---------------------------------------------------------------------------------------
 //    Request State Machine Variables for PS5 Controller
@@ -194,7 +195,7 @@ void loop()
 //      ADD YOUR CUSTOM DROID FUNCTIONS STARTING HERE
 // =======================================================================================
 int deltaSpeed(int currSpeed, int targetSpeed, double acceleration) {
-  if (abs(targetSpeed - currSpeed)<=1){
+  if (abs(targetSpeed - currSpeed)<=1 || (targetSpeed>0&&currSpeed>targetSpeed)|| (targetSpeed<0&&currSpeed<targetSpeed)){
     return (int)(targetSpeed - currSpeed + 0.5 * sign(targetSpeed));
   } 
   if (targetSpeed > currSpeed) {
@@ -204,11 +205,23 @@ int deltaSpeed(int currSpeed, int targetSpeed, double acceleration) {
   }
 }
 
+int rampTurn(int target){
+  return (int)(target/2);
+}
+int rampForward(int target, int curr){
+//  if (target>0){
+//    return (int)(log(target));
+//  }
+  return (int)(target/2);
+}
+
 void moveRobot() {
   if (reqLeftJoyMade) {
     // if (abs(reqLeftJoyYValue) > 50 || abs(reqLeftJoyXValue) > 50) {
-      currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue, 0.2);
-      currTurn = deltaSpeed(currTurn,reqLeftJoyXValue, 0.1);
+//      currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue, 0.2);
+      currSpeed = rampForward(reqLeftJoyYValue, currSpeed);
+//      currTurn = deltaSpeed(currTurn,reqLeftJoyXValue, 0.1);
+      currTurn = rampTurn(reqLeftJoyXValue);
       ST->turn(currTurn);
       ST->drive(currSpeed*-1);
       robotMoving = true;
@@ -217,18 +230,19 @@ void moveRobot() {
   // else if () {}
   else {
     if (robotMoving){
-      currSpeed = deltaSpeed(currSpeed, 0, -0.5);
-      currTurn = deltaSpeed(currTurn, 0, -0.5);
-      if (currSpeed>0 || currTurn>0){
-        ST->drive(currSpeed*-1);
-        ST->turn(currTurn);
-      } else {
+//      currSpeed = deltaSpeed(currSpeed, 0, -0.5);
+//      currTurn = deltaSpeed(currTurn, 0, -0.5);
+//      if (currSpeed>0 || currTurn>0){
+//        ST->drive(currSpeed*-1);
+//        ST->turn(currTurn);
+//      } else {
         ST->stop();
+        currSpeed = 0;
+        currTurn = 0;
         robotMoving = false;
-      }
+//      }
     }
   }
-  Serial.print("currSpeed: ");
   Serial.println(currSpeed);
 }
 
@@ -258,8 +272,9 @@ void turn(String direction){
 //    delay(50); // Small delay for smooth acceleration
 //  }
   ST->drive(speed);
+  ST->drive(speed*-1);
   delay(timeToMove);
-  ST->drive(speed);
+  
 //  for (int i = speed; i >= 0; i -= 10) {
 //    ST->drive(i*-1);
 //    delay(50);
@@ -499,10 +514,10 @@ void setPS5Request(String PS5Request)
             reqLeftJoyRight = false;
             reqLeftJoyMade = true;
             
-            Serial.print("LEFT Joystick Y Value: ");
-            Serial.println(String(reqLeftJoyYValue));
-            Serial.print("LEFT Joystick X Value: ");
-            Serial.println(String(reqLeftJoyXValue));
+//            Serial.print("LEFT Joystick Y Value: ");
+//            Serial.println(String(reqLeftJoyYValue));
+//            Serial.print("LEFT Joystick X Value: ");
+//            Serial.println(String(reqLeftJoyXValue));
 
             if (reqLeftJoyYValue > 0) {
                 reqLeftJoyDown = true;
@@ -539,10 +554,10 @@ void setPS5Request(String PS5Request)
             reqRightJoyRight = false;
             reqRightJoyMade = true;
             
-            Serial.print("RIGHT Joystick Y Value: ");
-            Serial.println(String(reqRightJoyYValue));
-            Serial.print("RIGHT Joystick X Value: ");
-            Serial.println(String(reqRightJoyXValue));
+//            Serial.print("RIGHT Joystick Y Value: ");
+//            Serial.println(String(reqRightJoyYValue));
+//            Serial.print("RIGHT Joystick X Value: ");
+//            Serial.println(String(reqRightJoyXValue));
 
             if (reqRightJoyYValue > 0) {
                 reqRightJoyDown = true;
