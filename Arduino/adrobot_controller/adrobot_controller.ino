@@ -160,8 +160,9 @@ void loop()
 
 	    // checkServo();
        // Sample droid function call from PS5 request - REMOVE ONCE YOU UNDERSTAND STRUCTURE
-      //  if (reqSquare) {
-      //     square();
+       if (reqCross) {
+          stop(ST);
+       }
       //  } if (reqCircle) {
       //     circle();
       //  }
@@ -338,6 +339,9 @@ void circle(){
 }
 void square(){
     myServo.write(140);
+}
+void cross(Sabertooth* ST){
+  stop(ST);
 }
 void leftJoyDown(){
   myServo.write(max(0,min(reqLeftJoyYValue,140)));
