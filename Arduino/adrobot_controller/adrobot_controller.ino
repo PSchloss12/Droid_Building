@@ -195,14 +195,16 @@ void loop()
 //      ADD YOUR CUSTOM DROID FUNCTIONS STARTING HERE
 // =======================================================================================
 int deltaSpeed(int currSpeed, int targetSpeed, double acceleration) {
-  if (abs(targetSpeed - currSpeed)<=1 || (targetSpeed>0&&currSpeed>targetSpeed)|| (targetSpeed<0&&currSpeed<targetSpeed)){
-    return (int)(targetSpeed - currSpeed + 0.5 * sign(targetSpeed));
-  } 
-  if (targetSpeed > currSpeed) {
-    return (int)((targetSpeed - currSpeed) * acceleration);
-  } else {
-    return (int)((currSpeed - targetSpeed) * acceleration);
+  if (currSpeed == targetSpeed) {
+      return 0;  // No change needed
   }
+  int speedDiff = targetSpeed - currSpeed;
+  int step = (int)(acceleration * abs(speedDiff)); // Ensure gradual acceleration
+  if (step < 1) step = 1; // Prevent being stuck when acceleration is too low
+  if (abs(speedDiff) <= step) {
+      return speedDiff;  // Directly reach target if within step size
+  }
+  return (speedDiff > 0) ? step : -step;  // Increment or decrement gradually
 }
 
 int rampTurn(int target){
@@ -215,43 +217,53 @@ int rampForward(int target, int curr){
   return (int)(target/2);
 }
 
+void moveRobot2() {
+  if (reqLeftJoyMade) {
+      currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue, 0.2);
+      currTurn += deltaSpeed(currTurn, reqLeftJoyXValue, 0.1);
+      ST->turn(currTurn);
+      ST->drive(-currSpeed);
+      robotMoving = true;
+  } else if (robotMoving) {// Smooth deceleration when joystick is released
+      currSpeed += deltaSpeed(currSpeed, 0, 0.5);
+      currTurn += deltaSpeed(currTurn, 0, 0.5);
+      if (abs(currSpeed) > 0 || abs(currTurn) > 0) {
+          ST->drive(-currSpeed);
+          ST->turn(currTurn);
+      } else {// Fully stop the robot when speed and turn reach zero
+          ST->stop();
+          currSpeed = 0;
+          currTurn = 0;
+          robotMoving = false;
+      }
+  }
+  Serial.println("Speed: "+currSpeed);
+}
+
 void moveRobot() {
   if (reqLeftJoyMade) {
-    // if (abs(reqLeftJoyYValue) > 50 || abs(reqLeftJoyXValue) > 50) {
-//      currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue, 0.2);
       currSpeed = rampForward(reqLeftJoyYValue, currSpeed);
-//      currTurn = deltaSpeed(currTurn,reqLeftJoyXValue, 0.1);
       currTurn = rampTurn(reqLeftJoyXValue);
       ST->turn(currTurn);
       ST->drive(currSpeed*-1);
       robotMoving = true;
-    // }
   } 
-  // else if () {}
   else {
     if (robotMoving){
-//      currSpeed = deltaSpeed(currSpeed, 0, -0.5);
-//      currTurn = deltaSpeed(currTurn, 0, -0.5);
-//      if (currSpeed>0 || currTurn>0){
-//        ST->drive(currSpeed*-1);
-//        ST->turn(currTurn);
-//      } else {
         ST->stop();
         currSpeed = 0;
         currTurn = 0;
         robotMoving = false;
-//      }
     }
   }
-  Serial.println(currSpeed);
 }
 
 void decide(){
   if (commandRecieved){
     if (command=="LEFT"){
-      turn(command);
+      turn(ST,command);
     } else if (command=="RIGHT"){
-      turn(command);
+      turn(ST,command);
     } else if (command=="STOP"){
       Serial.println("stop");
     } else if (command=="FORWARD"){
@@ -262,32 +274,46 @@ void decide(){
   commandRecieved = false;
 }
 
-void turn(String direction){
-  // Blocking Turn function
-  int speed = 100;
-  int timeToMove = 1000; // how long to move before turn
-  int turnTime = 500;
-//  for (int i = 0; i <= speed; i += 10) {
-//    ST->drive(i*-1);
-//    delay(50); // Small delay for smooth acceleration
-//  }
+void moveForward(Sabertooth* ST, int speed) {
   ST->drive(speed);
-  ST->drive(speed*-1);
-  delay(timeToMove);
+}
+
+void turnLeft(Sabertooth* ST, int speed) {
+  ST->turn(-speed);
+}
+
+void turnRight(Sabertooth* ST, int speed) {
+  ST->turn(speed);
+}
+
+void stop(Sabertooth* ST) {
+  ST->drive(0);
+  ST->turn(0);
+}
+
+void turn(Sabertooth* ST, String direction) {
+  const int MOVE_SPEED = 50;        // Speed for moving (0-127)
+  const int TURN_SPEED = 40;        // Speed for turning (0-127)
+  const int FORWARD_TIME = 1000;    // Time to move forward ~1 foot (milliseconds)
+  const int TURN_TIME = 800;        // Time for approximately 90 degree turn (milliseconds)
   
-//  for (int i = speed; i >= 0; i -= 10) {
-//    ST->drive(i*-1);
-//    delay(50);
-//  }
-  // begin turn
-//  if (direction == "left") {
-//    ST->turn(speed);
-//  } else if (direction == "right") {
-//    ST->turn(speed*-1);
-//  } 
-//  delay(turnTime);
-//  ST->turn(0);
-//  ST->turn(speed);
+  // First move forward one foot
+  moveForward(ST, MOVE_SPEED);
+  delay(FORWARD_TIME);
+  stop(ST);
+  delay(250);  // Brief pause after moving
+  
+  // Then turn based on command
+  if (direction == "LEFT") {
+    turnLeft(ST, TURN_SPEED);
+    delay(TURN_TIME);
+    stop(ST);
+  } 
+  else if (direction == "RIGHT") {
+    turnRight(ST, TURN_SPEED);
+    delay(TURN_TIME);
+    stop(ST);
+  }
 }
 
 //void checkServo(){
@@ -306,27 +332,7 @@ void turn(String direction){
 //			currServoPos = min(currServoPos + 15,140);
 //			myServo.write(currServoPos);
 //			servoMillis = millis();
-//		} else {
-//			servoMillis = millis();
-//		}
-//	}
-//  // right
-//	if(reqRightJoyLeft && (servoMillis+50 < millis()) && servoRoutineInitialized){
-//		if(currServoPos > 0){
-//			currServoPos = max(currServoPos - 15,0);
-//			myServo.write(currServoPos);
-//			servoMillis = millis();
-//		} else {
-//      servoMillis = millis();
-//		}
-//	}
-//	// joystick movement reset
-//	if (!reqLeftJoyLeft && !reqRightJoyRight && servoRoutineInitialized){
-//    currServoPos = 90;
-//    myServo.write(currServoPos);
-//    servoMillis = millis();
-//	}
-//}
+
 void circle(){
     myServo.write(0);
 }

@@ -17,9 +17,9 @@ def initialize():
     model = YOLO('yolo11n.tflite')
     return picam2, model
 
-def detect_sign(cam, model):
+def detect_sign_old(cam, model):
     '''
-    NB: only returns first detected class atm
+    NB: only returns if only one class detected
     '''
     color_print('Analyzing picture',"cyan")
     frame = cam.capture_array()
@@ -32,9 +32,47 @@ def detect_sign(cam, model):
     color = 'green' if len(detected_classes)>0 else 'red'
     print("Detected:", end=' ')
     color_print(detected_classes, color)
-    if len(detected_classes) > 0:
+    if len(detected_classes) == 1:
         return str(detected_classes[0])
     return ""
+
+def detect_sign(cam, model):
+    '''
+    Returns the largest detected object of any class
+    '''
+    min_area = 400
+    color_print('Analyzing picture', "cyan")
+
+    sign = None
+    for i in range(2):
+        frame = cam.capture_array()
+        results = model(frame)
+        
+        largest_obj = None
+        largest_area = 0
+        
+        for result in results:
+            for i, box in enumerate(result.boxes.xyxy):  # Get bounding boxes
+                # Calculate area of the bounding box
+                x1, y1, x2, y2 = box.tolist()
+                area = (x2 - x1) * (y2 - y1)
+                if area<min_area:
+                    color_print('signs too small','red')
+                    return ""
+                class_name = model.names[int(cls_id)]                
+                if area > largest_area:
+                    largest_area = area
+                    largest_obj = class_name
+        if not sign:
+            sign = largest_obj
+        if largest_obj!=sign:
+            color_print(f'[{sign},{largest_obj}]','red')
+            return ""
+        time.sleep(0.01)
+    color = 'green' if largest_obj else 'red'
+    print("Detected:", end=' ')
+    color_print([sign] if sign else [], color)
+    return str(largest_obj) if largest_obj else ""
 
 if __name__ == '__main__':
     # Initialize Picamera2
