@@ -155,7 +155,7 @@ void loop()
       if (autonomous){
         decide();
       } else {
-        moveRobot();
+        moveRobot2();
       }
 
 	    // checkServo();
@@ -220,14 +220,14 @@ int rampForward(int target, int curr){
 
 void moveRobot2() {
   if (reqLeftJoyMade) {
-      currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue, 0.2);
-      currTurn += deltaSpeed(currTurn, reqLeftJoyXValue, 0.1);
+      currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue, 0.01);
+      currTurn += deltaSpeed(currTurn, reqLeftJoyXValue, 0.01);
       ST->turn(currTurn);
       ST->drive(-currSpeed);
       robotMoving = true;
   } else if (robotMoving) {// Smooth deceleration when joystick is released
-      currSpeed += deltaSpeed(currSpeed, 0, 0.5);
-      currTurn += deltaSpeed(currTurn, 0, 0.5);
+      currSpeed += deltaSpeed(currSpeed, 0, 0.02);
+      currTurn += deltaSpeed(currTurn, 0, 0.02);
       if (abs(currSpeed) > 0 || abs(currTurn) > 0) {
           ST->drive(-currSpeed);
           ST->turn(currTurn);
