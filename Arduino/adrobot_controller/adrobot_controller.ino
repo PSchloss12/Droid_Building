@@ -267,8 +267,10 @@ void decide(){
       turn(ST,command);
     } else if (command=="STOP"){
       Serial.println("stop");
+      stop(ST);
     } else if (command=="FORWARD"){
       Serial.println("forward");
+      drive(ST);
     }
   }
   command = "";
@@ -290,6 +292,14 @@ void turnRight(Sabertooth* ST, int speed) {
 void stop(Sabertooth* ST) {
   ST->drive(0);
   ST->turn(0);
+}
+
+void drive(Sabertooth* ST){
+  const int MOVE_SPEED = 50;
+  const int FORWARD_TIME = 1000;
+  moveForward(ST, MOVE_SPEED);
+  delay(FORWARD_TIME);
+  stop(ST);
 }
 
 void turn(Sabertooth* ST, String direction) {
