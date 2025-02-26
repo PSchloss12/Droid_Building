@@ -220,14 +220,14 @@ int rampForward(int target, int curr){
 
 void moveRobot2() {
   if (reqLeftJoyMade) {
-      currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue, 0.01);
-      currTurn += deltaSpeed(currTurn, reqLeftJoyXValue, 0.01);
+      currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue/2, 0.01);
+      currTurn = reqLeftJoyXValue/3; //deltaSpeed(currTurn, reqLeftJoyXValue/2, 0.001);
       ST->turn(currTurn);
       ST->drive(-currSpeed);
       robotMoving = true;
   } else if (robotMoving) {// Smooth deceleration when joystick is released
       currSpeed += deltaSpeed(currSpeed, 0, 0.02);
-      currTurn += deltaSpeed(currTurn, 0, 0.02);
+      currTurn = 0;//deltaSpeed(currTurn, 0, 0.02);
       if (abs(currSpeed) > 0 || abs(currTurn) > 0) {
           ST->drive(-currSpeed);
           ST->turn(currTurn);
@@ -262,8 +262,10 @@ void moveRobot() {
 void decide(){
   if (commandRecieved){
     if (command=="LEFT"){
+      Serial.println("left");
       turn(ST,command);
     } else if (command=="RIGHT"){
+      Serial.println("right");
       turn(ST,command);
     } else if (command=="STOP"){
       Serial.println("stop");
