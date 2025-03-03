@@ -52,14 +52,14 @@ def detect_sign(cam, model):
         largest_area = 0
         
         for result in results:
-            for i, box in enumerate(result.boxes.xyxy):  # Get bounding boxes
+            for box in enumerate(result.boxes):  # Get bounding boxes
                 # Calculate area of the bounding box
-                x1, y1, x2, y2 = box.tolist()
+                x1, y1, x2, y2 = box.xyxy.tolist()
                 area = (x2 - x1) * (y2 - y1)
                 if area<min_area:
                     color_print('signs too small','red')
                     return ""
-                class_name = model.names[int(cls_id)]                
+                class_name = model.names[int(box.cls)]                
                 if area > largest_area:
                     largest_area = area
                     largest_obj = class_name

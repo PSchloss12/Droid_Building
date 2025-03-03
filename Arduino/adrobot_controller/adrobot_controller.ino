@@ -220,7 +220,7 @@ int rampForward(int target, int curr){
 
 void moveRobot2() {
   if (reqLeftJoyMade) {
-      currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue/2, 0.01);
+      currSpeed += deltaSpeed(currSpeed, reqLeftJoyYValue/1.5, 0.01);
       currTurn = reqLeftJoyXValue/3; //deltaSpeed(currTurn, reqLeftJoyXValue/2, 0.001);
       ST->turn(currTurn);
       ST->drive(-currSpeed);
