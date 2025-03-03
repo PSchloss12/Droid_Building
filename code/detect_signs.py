@@ -56,6 +56,8 @@ def detect_sign_new(cam, model):
                 # print(box)
                 print(type(box))
                 # Calculate area of the bounding box
+                print(box.xyxy.tolist())
+                print(box.xyxy)
                 x1, y1, x2, y2 = box.xyxy.tolist()
                 area = (x2 - x1) * (y2 - y1)
                 if area<min_area:
