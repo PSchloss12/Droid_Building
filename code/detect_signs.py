@@ -56,6 +56,7 @@ def detect_sign_new(cam, model):
                 # Calculate area of the bounding box
                 x1, y1, x2, y2 = box.xyxy[0]
                 area = (x2 - x1) * (y2 - y1)
+                print(area)
                 if area<min_area:
                     color_print('signs too small','red')
                     return ""
