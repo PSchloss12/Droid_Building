@@ -3,13 +3,18 @@ import RPi.GPIO as GPIO
 import os
 import time
 
+# Set up the GPIO pin for power detection
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(16, GPIO.IN)
+STOP_FILE = "/tmp/stop_ups_monitor" # Designated file for manual interrupt
+
 def check_initial_power_state():
     """Wait 1 second and check if running on battery/supercapacitor (3V
     present)."""
     time.sleep(1)
     return GPIO.input(16) == GPIO.HIGH
 
-def _monitor_power(STOP_FILE):
+def monitor_power():
     """Monitor power state and trigger shutdown on power loss.
     Also, exit if the STOP_FILE is detected.
     """
@@ -26,14 +31,6 @@ def _monitor_power(STOP_FILE):
     finally:
         GPIO.cleanup()
 
-def monitor_power():
-    # Set up the GPIO pin for power detection
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(16, GPIO.IN)
-    STOP_FILE = "/tmp/stop_ups_monitor" # Designated file for manual interrupt
-
-    if check_initial_power_state(STOP_FILE):
-        _monitor_power()
-
 if __name__ == "__main__":
-    monitor_power()
+    if check_initial_power_state():
+        monitor_power()

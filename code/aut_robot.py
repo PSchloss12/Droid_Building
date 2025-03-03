@@ -3,7 +3,6 @@ from smbus2 import SMBus
 import serial
 import threading
 from detect_signs import initialize, detect_sign
-from ups import monitor_power
 
 # Setup I2C comms channel for PS5 Controller
 I2C_BUS = 1  # I2C bus number (typically 1 on Raspberry Pi)
@@ -84,12 +83,9 @@ def main():
                    
         camera_process_thread = threading.Thread(target = camera_loop, args=(ser,), daemon=True)
         inbound_serial_thread = threading.Thread(target = inbound_serial_loop, daemon=True)
-        power_monitor_thread = threading.Thread(target = monitor_power, daemon=True)
-
 
         camera_process_thread.start()
         inbound_serial_thread.start()
-        power_monitor_thread.start()
         
         while True:
            # Waiting while robotic thread routines run
