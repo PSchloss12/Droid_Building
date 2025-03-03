@@ -94,7 +94,7 @@ if __name__ == '__main__':
     print('Model loaded!')
 
     while 1:
-        d_class = detect_sign_new()
+        d_class = detect_sign_new(model,picam2)
         print(d_class)
         # color_print('Analyzing picture',"cyan")
         # frame = picam2.capture_array()
