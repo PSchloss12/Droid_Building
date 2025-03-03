@@ -62,7 +62,7 @@ def camera_loop(ser):
     global stop_event
     camera, model = initialize() # initialize camera
     last_check_time = time.time()
-    loop_interval = 1  # 20ms interval  
+    loop_interval = 3  # 20ms interval  
     while True:
         current_time = time.time()
         if current_time - last_check_time >= loop_interval:

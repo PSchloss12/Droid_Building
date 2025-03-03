@@ -72,7 +72,7 @@ def detect_sign_new(cam, model):
     color = 'green' if largest_obj else 'red'
     print("Detected:", end=' ')
     color_print([sign] if sign else [], color)
-    return str(largest_obj) if largest_obj else ""
+    return str(sign) if sign else ""
 
 if __name__ == '__main__':
     # Initialize Picamera2
