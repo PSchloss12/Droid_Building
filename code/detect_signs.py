@@ -94,16 +94,18 @@ if __name__ == '__main__':
     print('Model loaded!')
 
     while 1:
-        color_print('Analyzing picture',"cyan")
-        frame = picam2.capture_array()
-        results = model(frame)
-        detected_classes = []
-        for result in results:
-            for cls_id in result.boxes.cls:  # Get class indices
-                if model.names[int(cls_id)] not in detected_classes:
-                    detected_classes.append(model.names[int(cls_id)])
-        color = 'green' if len(detected_classes)>0 else 'red'
-        print("Detected:", end=' ')
-        color_print(detected_classes, color)
+        d_class = detect_sign_new()
+        print(d_class)
+        # color_print('Analyzing picture',"cyan")
+        # frame = picam2.capture_array()
+        # results = model(frame)
+        # detected_classes = []
+        # for result in results:
+        #     for cls_id in result.boxes.cls:  # Get class indices
+        #         if model.names[int(cls_id)] not in detected_classes:
+        #             detected_classes.append(model.names[int(cls_id)])
+        # color = 'green' if len(detected_classes)>0 else 'red'
+        # print("Detected:", end=' ')
+        # color_print(detected_classes, color)
 
         time.sleep(1)
