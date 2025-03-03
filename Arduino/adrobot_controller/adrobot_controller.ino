@@ -27,7 +27,7 @@ Sabertooth *ST=new Sabertooth(SABERTOOTH_ADDR, Serial1); //TX1 – Pin#18
 int currSpeed = 0;
 int currTurn = 0;
 boolean robotMoving = false;
-boolean autonomous = false;
+boolean autonomous = true;
 
 // ---------------------------------------------------------------------------------------
 //    Request State Machine Variables for PS5 Controller
@@ -303,34 +303,42 @@ void stop(Sabertooth* ST) {
 }
 
 void drive(Sabertooth* ST){
-  const int MOVE_SPEED = 50;
-  const int FORWARD_TIME = 1000;
-  moveForward(ST, MOVE_SPEED);
-  delay(FORWARD_TIME);
+  const int MOVE_SPEED = 60;
+  const int FORWARD_TIME = 150;
+  for (int i = 0; i<5; i++){
+    moveForward(ST, MOVE_SPEED);
+    delay(FORWARD_TIME);
+  }
   stop(ST);
 }
 
 void turn(Sabertooth* ST, String direction) {
-  const int MOVE_SPEED = 50;        // Speed for moving (0-127)
-  const int TURN_SPEED = 40;        // Speed for turning (0-127)
-  const int FORWARD_TIME = 1000;    // Time to move forward ~1 foot (milliseconds)
-  const int TURN_TIME = 800;        // Time for approximately 90 degree turn (milliseconds)
+  const int MOVE_SPEED = 60;        // Speed for moving (0-127)
+  const int TURN_SPEED = 51;        // Speed for turning (0-127)
+  const int FORWARD_TIME = 150;    // Time to move forward ~1 foot (milliseconds)
+  const int TURN_TIME = 150;        // Time for approximately 90 degree turn (milliseconds)
   
   // First move forward one foot
-  moveForward(ST, MOVE_SPEED);
-  delay(FORWARD_TIME);
+  for (int i = 0; i<5; i++){
+    moveForward(ST, MOVE_SPEED);
+    delay(FORWARD_TIME);
+  }
   stop(ST);
-  delay(250);  // Brief pause after moving
+  delay(100);  // Brief pause after moving
   
   // Then turn based on command
   if (direction == "LEFT") {
-    turnLeft(ST, TURN_SPEED);
-    delay(TURN_TIME);
+    for (int i = 0; i<6; i++){
+       turnLeft(ST, TURN_SPEED+6);
+       delay(TURN_TIME); 
+    }
     stop(ST);
   } 
   else if (direction == "RIGHT") {
-    turnRight(ST, TURN_SPEED);
-    delay(TURN_TIME);
+    for (int i = 0; i<7; i++){
+       turnRight(ST, TURN_SPEED);
+       delay(TURN_TIME); 
+    }
     stop(ST);
   }
 }

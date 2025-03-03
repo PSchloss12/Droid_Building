@@ -17,7 +17,7 @@ def initialize():
     model = YOLO('yolo11n.tflite')
     return picam2, model
 
-def detect_sign_old(cam, model):
+def detect_sign(cam, model):
     '''
     NB: only returns if only one class detected
     '''
@@ -36,7 +36,7 @@ def detect_sign_old(cam, model):
         return str(detected_classes[0])
     return ""
 
-def detect_sign(cam, model):
+def detect_sign_new(cam, model):
     '''
     Returns the largest detected object of any class
     '''
@@ -53,8 +53,10 @@ def detect_sign(cam, model):
         
         for result in results:
             for box in enumerate(result.boxes):  # Get bounding boxes
+                print(box)
+                print(type(box))
                 # Calculate area of the bounding box
-                x1, y1, x2, y2 = box.xyxy.tolist()
+                x1, y1, x2, y2 = box[0].xyxy.tolist()
                 area = (x2 - x1) * (y2 - y1)
                 if area<min_area:
                     color_print('signs too small','red')
