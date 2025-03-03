@@ -161,11 +161,17 @@ void loop()
 	    // checkServo();
        // Sample droid function call from PS5 request - REMOVE ONCE YOU UNDERSTAND STRUCTURE
        if (reqCross) {
-          stop(ST);
+          cross(ST);
        }
-      //  } if (reqCircle) {
-      //     circle();
-      //  }
+       if (reqCircle) {
+         circle(ST);
+       }
+       if (reqTriangle) {
+         triangle(ST);
+       }
+       if (reqSquare) {
+         square(ST);
+       }
     
        // ----------------------------------------------
        // YOUR MAIN LOOP CONTROL CODE SHOULD END HERE
@@ -346,14 +352,19 @@ void turn(Sabertooth* ST, String direction) {
 //			myServo.write(currServoPos);
 //			servoMillis = millis();
 
-void circle(){
-    myServo.write(0);
+void circle(Sabertooth* ST){
+//    myServo.write(0);
+  turn(ST,"RIGHT");
 }
-void square(){
-    myServo.write(140);
+void square(Sabertooth* ST){
+//    myServo.write(140);
+  turn(ST,"LEFT");
 }
 void cross(Sabertooth* ST){
   stop(ST);
+}
+void triangle(Sabertooth* ST){
+  drive(ST);
 }
 void leftJoyDown(){
   myServo.write(max(0,min(reqLeftJoyYValue,140)));
