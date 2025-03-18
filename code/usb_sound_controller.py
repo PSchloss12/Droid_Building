@@ -11,6 +11,7 @@ import queue
 from pydub import AudioSegment
 import pygame
 
+
 class USB_SoundController:
     def __init__(self, volume=0.7):
         # Initializes the sound controller.
@@ -20,13 +21,13 @@ class USB_SoundController:
         pygame.mixer.pre_init(44100, -16, 2, 512)
         pygame.init()
         pygame.mixer.set_num_channels(8)
-        
+
         self.volume = volume
         self.start_time = None
         self.current_sound = None  # Currently playing sound identifier
         self.current_channel = None  # Pygame Channel for playback
         self.sounds = {}  # For pre-loaded sounds (if needed)
-        
+
         # Set up a task queue and a worker thread to process audio commands.
         self.task_queue = queue.Queue()
         self.stop_event = threading.Event()
@@ -72,7 +73,7 @@ class USB_SoundController:
         if not os.path.exists(file_path):
             print("Error: WAV file does not exist:", file_path)
             return
-        
+
         try:
             sound = pygame.mixer.Sound(file_path)
             sound.set_volume(self.volume)
@@ -91,10 +92,10 @@ class USB_SoundController:
         if not os.path.exists(file_path):
             print("Error: File does not exist:", file_path)
             return
-        
+
         if file_path.lower().endswith(".mp3"):
             file_path = self._convert_mp3_to_wav(file_path)
-        
+
         self._play_wav(file_path)
 
     # ----- Text-to-Speech Function -----
@@ -126,7 +127,7 @@ class USB_SoundController:
         pygame.mixer.stop()
         self.start_time = None
         self.current_sound = None
-        
+
         # Purge the task queue.
         with self.task_queue.mutex:
             self.task_queue.queue.clear()
@@ -155,42 +156,45 @@ class USB_SoundController:
         pygame.quit()
         print("USB_SoundController closed gracefully.")
 
+
 # ----- Test Code -----
 if __name__ == "__main__":
     sound_ctrl = USB_SoundController(volume=0.7)
-    
+
     try:
         # Test TTS with Festival
         print("Testing Text-to-Speech with Festival:")
-        sound_ctrl.play_text_to_speech("Hello, this is a test of Festival using my natural voice.")
+        sound_ctrl.play_text_to_speech(
+            "Hello, this is a test of Festival using my natural voice."
+        )
         time.sleep(5)
-        
+
         # Test playing a WAV file (adjust the path as needed)
         print("Testing WAV playback:")
-        sound_ctrl.play_audio("sounds/test.wav")
+        sound_ctrl.play_audio("sounds/whiney.wav")
         time.sleep(3)
         sound_ctrl.stop_sound()  # Stop WAV playback
         time.sleep(2)
-        
+
         # Test playing an MP3 file (will be converted to WAV first; adjust the path as needed)
         print("Testing MP3 playback:")
-        sound_ctrl.play_audio("sounds/test.mp3")
+        sound_ctrl.play_audio("sounds/gallop.mp3")
         time.sleep(3)
         sound_ctrl.stop_sound()  # Stop MP3 playback
         time.sleep(2)
-        
+
         # Test volume control
         print("Testing volume control:")
         sound_ctrl.set_volume(0.5)
-        sound_ctrl.play_audio("sounds/test.mp3")
+        sound_ctrl.play_audio("sounds/fall.mp3")
         time.sleep(2)
         sound_ctrl.set_volume(0.1)
-        sound_ctrl.play_audio("sounds/test.mp3")
+        sound_ctrl.play_audio("sounds/fall.mp3")
         time.sleep(2)
         sound_ctrl.set_volume(0.9)
-        sound_ctrl.play_audio("sounds/test.mp3")
+        sound_ctrl.play_audio("sounds/fall.mp3")
         time.sleep(2)
-    
+
     finally:
         # Ensure a clean close even if an error occurs.
         sound_ctrl.close()
