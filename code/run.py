@@ -56,6 +56,7 @@ def random_image(tft_display):
             random.choice(words), position=(5, 40), font_size=24, color=(255, 0, 255)
         )
         time.sleep(1)
+        tft_display.clear_screen("black")
 
 
 def run_robot_controller():
