@@ -14,8 +14,8 @@ def initialize():
     )
     picam2.configure(config)
     picam2.start()
-    #model = YOLO('yolo11n.tflite')
-    model = YOLO('best_float32_old.tflite')
+    model = YOLO('yolo11n.tflite')
+    #model = YOLO('best_float32_old.tflite')
     return picam2, model
 
 def detect_sign(cam, model):
@@ -46,11 +46,8 @@ def detect_sign_new(cam, model):
 
     sign = None
     for i in range(2):
-        print('check0')
         frame = cam.capture_array()
-        print('check0')
         results = model(frame)
-        print('check0')
         
         largest_obj = None
         largest_area = 0
@@ -59,7 +56,6 @@ def detect_sign_new(cam, model):
                 # Calculate area of the bounding box
                 x1, y1, x2, y2 = box.xyxy[0]
                 area = (x2 - x1) * (y2 - y1)
-                print(area)
                 if area<min_area:
                     color_print('signs too small','red')
                     return ""
@@ -67,6 +63,7 @@ def detect_sign_new(cam, model):
                 if area > largest_area:
                     largest_area = area
                     largest_obj = class_name
+        print(largest_area)
         if not sign:
             sign = largest_obj
         if largest_obj!=sign:
