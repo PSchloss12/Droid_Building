@@ -207,31 +207,28 @@ def draw_crown(tft_display):
     )
 
     # Draw the left spike
-    tft_display.draw_triangle(
-        point1=(30, 100),
-        point2=(50, 60),
-        point3=(70, 100),
-        line_color=(255, 215, 0),  # Gold
-        fill_color=(255, 215, 0),  # Gold
-    )
+    tft_display.draw_line(
+        start=(30, 100), end=(50, 60), line_width=2, color=(255, 215, 0)
+    )  # Left side
+    tft_display.draw_line(
+        start=(50, 60), end=(70, 100), line_width=2, color=(255, 215, 0)
+    )  # Right side
 
     # Draw the middle spike
-    tft_display.draw_triangle(
-        point1=(60, 100),
-        point2=(80, 40),
-        point3=(100, 100),
-        line_color=(255, 215, 0),  # Gold
-        fill_color=(255, 215, 0),  # Gold
-    )
+    tft_display.draw_line(
+        start=(60, 100), end=(80, 40), line_width=2, color=(255, 215, 0)
+    )  # Left side
+    tft_display.draw_line(
+        start=(80, 40), end=(100, 100), line_width=2, color=(255, 215, 0)
+    )  # Right side
 
     # Draw the right spike
-    tft_display.draw_triangle(
-        point1=(90, 100),
-        point2=(110, 60),
-        point3=(130, 100),
-        line_color=(255, 215, 0),  # Gold
-        fill_color=(255, 215, 0),  # Gold
-    )
+    tft_display.draw_line(
+        start=(90, 100), end=(110, 60), line_width=2, color=(255, 215, 0)
+    )  # Left side
+    tft_display.draw_line(
+        start=(110, 60), end=(130, 100), line_width=2, color=(255, 215, 0)
+    )  # Right side
 
     # Draw jewels on the spikes
     tft_display.draw_circle(
