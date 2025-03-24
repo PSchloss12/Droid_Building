@@ -9,10 +9,21 @@ tft.clear_screen("black")
 # Draw the base of the crown
 tft.draw_box(top_left=(50, 160), bottom_right=(190, 180), line_color=(255, 215, 0), fill_color=(255, 215, 0))  # Gold base
 
-# Draw the peaks of the crown
-tft.draw_triangle(vertices=[(50, 160), (70, 120), (90, 160)], line_color=(255, 215, 0), fill_color=(255, 215, 0))  # Left peak
-tft.draw_triangle(vertices=[(90, 160), (120, 100), (150, 160)], line_color=(255, 215, 0), fill_color=(255, 215, 0))  # Middle peak
-tft.draw_triangle(vertices=[(150, 160), (170, 120), (190, 160)], line_color=(255, 215, 0), fill_color=(255, 215, 0))  # Right peak
+# Draw the peaks of the crown using lines
+# Left peak
+tft.draw_line(start=(50, 160), end=(70, 120), line_width=1, color=(255, 215, 0))
+tft.draw_line(start=(70, 120), end=(90, 160), line_width=1, color=(255, 215, 0))
+tft.draw_line(start=(90, 160), end=(50, 160), line_width=1, color=(255, 215, 0))
+
+# Middle peak
+tft.draw_line(start=(90, 160), end=(120, 100), line_width=1, color=(255, 215, 0))
+tft.draw_line(start=(120, 100), end=(150, 160), line_width=1, color=(255, 215, 0))
+tft.draw_line(start=(150, 160), end=(90, 160), line_width=1, color=(255, 215, 0))
+
+# Right peak
+tft.draw_line(start=(150, 160), end=(170, 120), line_width=1, color=(255, 215, 0))
+tft.draw_line(start=(170, 120), end=(190, 160), line_width=1, color=(255, 215, 0))
+tft.draw_line(start=(190, 160), end=(150, 160), line_width=1, color=(255, 215, 0))
 
 # Add jewels to the peaks
 tft.draw_circle(center=(70, 115), radius=5, line_color=(255, 0, 0))  # Left jewel (red)
