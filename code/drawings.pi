@@ -1,0 +1,25 @@
+from tft_display import TFT_Display
+
+# Initialize the TFT display
+tft = TFT_Display()
+
+# Clear the screen with a black background
+tft.clear_screen("black")
+
+# Draw the base of the crown
+tft.draw_box(top_left=(50, 160), bottom_right=(190, 180), line_color=(255, 215, 0), fill_color=(255, 215, 0))  # Gold base
+
+# Draw the peaks of the crown
+tft.draw_triangle(vertices=[(50, 160), (70, 120), (90, 160)], line_color=(255, 215, 0), fill_color=(255, 215, 0))  # Left peak
+tft.draw_triangle(vertices=[(90, 160), (120, 100), (150, 160)], line_color=(255, 215, 0), fill_color=(255, 215, 0))  # Middle peak
+tft.draw_triangle(vertices=[(150, 160), (170, 120), (190, 160)], line_color=(255, 215, 0), fill_color=(255, 215, 0))  # Right peak
+
+# Add jewels to the peaks
+tft.draw_circle(center=(70, 115), radius=5, line_color=(255, 0, 0))  # Left jewel (red)
+tft.draw_circle(center=(120, 95), radius=5, line_color=(0, 255, 0))  # Middle jewel (green)
+tft.draw_circle(center=(170, 115), radius=5, line_color=(0, 0, 255))  # Right jewel (blue)
+
+# Display some decorative text
+tft.draw_text("Royal Crown", position=(90, 200), font_size=18, color=(0, 255, 255))
+
+# Done! The crown is now drawn on the TFT display
