@@ -1,8 +1,9 @@
 from ups import *
 import robot_controller
 from usb_sound_controller import USB_SoundController
-from tft_display import TFT_Display
-from led_controller import LED_Controller
+from tft_display import TFTDisplay
+
+# from led_controller import
 import signal
 import random
 
@@ -53,7 +54,7 @@ signal.signal(signal.SIGINT, kill_signal_handler)
 sound_controller = USB_SoundController()
 
 # Initialize the TFT Display
-tft_display = TFT_Display()
+tft_display = TFTDisplay()
 
 # Initialize the LED Controller
 # led_controller = LED_Controller()
