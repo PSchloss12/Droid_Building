@@ -305,7 +305,7 @@ void stop(Sabertooth* ST) {
 void drive(Sabertooth* ST){
   const int MOVE_SPEED = 60;
   const int FORWARD_TIME = 150;
-  for (int i = 0; i<5; i++){
+  for (int i = 0; i<10; i++){
     moveForward(ST, MOVE_SPEED);
     delay(FORWARD_TIME);
   }
@@ -319,7 +319,7 @@ void turn(Sabertooth* ST, String direction) {
   const int TURN_TIME = 150;        // Time for approximately 90 degree turn (milliseconds)
   
   // First move forward one foot
-  for (int i = 0; i<5; i++){
+  for (int i = 0; i<10; i++){
     moveForward(ST, MOVE_SPEED);
     delay(FORWARD_TIME);
   }
