@@ -8,11 +8,13 @@ import time
 from sabertooth import Sabertooth
 from ps5_controller import PS5_Controller
 
+
 def move_robot(saber, control_request):
     # Sends motor commands to the Sabertooth motor controller.
-    speed = control_request["reqLeftJoyYValue"]
+    speed = control_request["reqLeftJoyYValue"] * -1
     turn = control_request["reqLeftJoyXValue"]
     saber.drive(speed, turn)
+
 
 def main():
     try:
@@ -27,7 +29,7 @@ def main():
 
         ps5_last_check_time = time.time()
         ps5_loop_interval = 0.02  # 20ms interval
-        
+
         motor_controller_last_check_time = time.time()
         motor_controller_loop_interval = 0.04  # 40ms interval
 
@@ -46,7 +48,10 @@ def main():
 
             # Move the robot if left joystick is moved
             if ps5.control_request["reqLeftJoyMade"]:
-                if current_time - motor_controller_last_check_time >= motor_controller_loop_interval:
+                if (
+                    current_time - motor_controller_last_check_time
+                    >= motor_controller_loop_interval
+                ):
                     move_robot(saber, ps5.control_request)
                     isMoving = True
                     motor_controller_last_check_time = time.time()
@@ -58,9 +63,9 @@ def main():
             # Reset PS5 request variables for next loop
             if ps5.control_request["reqMade"]:
                 ps5.reset_controller_state()
-                
+
             # Provide a brief sleep to allow worker threads to catch up to main loop
-            time.sleep(.001)
+            time.sleep(0.001)
 
     except KeyboardInterrupt:
         print("Exiting program...")
@@ -70,6 +75,7 @@ def main():
         pygame.quit()
         saber.close()
         print("PS5 controller disconnected.")
+
 
 if __name__ == "__main__":
     main()
