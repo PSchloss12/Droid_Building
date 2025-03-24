@@ -34,7 +34,7 @@ def random_sound(sound_controller):
     ]
     while not stop_threads:
         sound_controller.play_audio(random.choice(sounds))
-        time.sleep(1)
+        time.sleep(3)
 
 
 def random_image(tft_display):

@@ -9,14 +9,15 @@ from sabertooth import Sabertooth
 from ps5_controller import PS5_Controller
 
 
-def move_robot(saber, control_request):
+def move_robot(saber, control_request, direction):
     # Sends motor commands to the Sabertooth motor controller.
-    speed = control_request["reqLeftJoyYValue"] * -1
-    turn = control_request["reqLeftJoyXValue"]
+    speed = control_request["reqLeftJoyYValue"] * -1 * direction
+    turn = control_request["reqLeftJoyXValue"] #* direction
     saber.drive(speed, turn)
 
 
 def main():
+    direction = 1
     try:
         # Initialize the PS5 Controller class
         ps5 = PS5_Controller()
@@ -24,7 +25,7 @@ def main():
 
         # Initialize Sabertooth motor controller
         saber = Sabertooth()
-        saber.set_ramping(21)  # Fast Ramping 1-10, Slow 11-20, Intermediate 21-80
+        saber.set_ramping(15)  # Fast Ramping 1-10, Slow 11-20, Intermediate 21-80
         isMoving = False
 
         ps5_last_check_time = time.time()
@@ -45,6 +46,7 @@ def main():
             # Example: Use Arrow Up as a function call trigger
             if ps5.control_request["reqArrowUp"]:
                 print("This should call by function tied to Arrow Up")
+                direction *= -1
 
             # Move the robot if left joystick is moved
             if ps5.control_request["reqLeftJoyMade"]:
@@ -52,7 +54,7 @@ def main():
                     current_time - motor_controller_last_check_time
                     >= motor_controller_loop_interval
                 ):
-                    move_robot(saber, ps5.control_request)
+                    move_robot(saber, ps5.control_request, direction)
                     isMoving = True
                     motor_controller_last_check_time = time.time()
             else:
