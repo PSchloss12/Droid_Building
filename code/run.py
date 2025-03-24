@@ -191,6 +191,69 @@ def draw_crest(tft_display):
     )  # "D" in the center
 
 
+def draw_crown(tft_display):
+    """
+    Draws a simple crown using the drawing functions from tft_display.py.
+    """
+    # Clear the screen
+    tft_display.clear_screen("black")
+
+    # Draw the base of the crown
+    tft_display.draw_box(
+        top_left=(30, 100),
+        bottom_right=(98, 120),
+        line_color=(255, 215, 0),  # Gold
+        fill_color=(255, 215, 0),  # Gold
+    )
+
+    # Draw the left spike
+    tft_display.draw_triangle(
+        point1=(30, 100),
+        point2=(50, 60),
+        point3=(70, 100),
+        line_color=(255, 215, 0),  # Gold
+        fill_color=(255, 215, 0),  # Gold
+    )
+
+    # Draw the middle spike
+    tft_display.draw_triangle(
+        point1=(60, 100),
+        point2=(80, 40),
+        point3=(100, 100),
+        line_color=(255, 215, 0),  # Gold
+        fill_color=(255, 215, 0),  # Gold
+    )
+
+    # Draw the right spike
+    tft_display.draw_triangle(
+        point1=(90, 100),
+        point2=(110, 60),
+        point3=(130, 100),
+        line_color=(255, 215, 0),  # Gold
+        fill_color=(255, 215, 0),  # Gold
+    )
+
+    # Draw jewels on the spikes
+    tft_display.draw_circle(
+        center=(50, 60),
+        radius=5,
+        line_color=(0, 0, 255),  # Blue
+        fill_color=(0, 0, 255),  # Blue
+    )
+    tft_display.draw_circle(
+        center=(80, 40),
+        radius=5,
+        line_color=(255, 0, 0),  # Red
+        fill_color=(255, 0, 0),  # Red
+    )
+    tft_display.draw_circle(
+        center=(110, 60),
+        radius=5,
+        line_color=(0, 255, 0),  # Green
+        fill_color=(0, 255, 0),  # Green
+    )
+
+
 def clean():
     global stop_threads
     stop_threads = True  # Signal threads to stop
@@ -231,7 +294,7 @@ def random_image(tft_display):
         "On your knees",
         "For the motherland",
     ]
-    drawings = [draw_castle, draw_crest]
+    drawings = [draw_castle, draw_crest, draw_crown]
     while not stop_threads:
         # word = random.choice(words)
         # if len(word) == 1:
@@ -243,7 +306,7 @@ def random_image(tft_display):
         #         word, position=(5, 40), font_size=10, color=(255, 0, 255)
         #     )
         random.choice(drawings)(tft_display)
-        time.sleep(1)
+        time.sleep(3)
         tft_display.clear_screen("black")
 
 
