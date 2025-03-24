@@ -188,48 +188,77 @@ def draw_crown(tft):
     # Clear the screen with a black background
     tft.clear_screen("black")
 
+    # Shift all coordinates left by 55 pixels
+    shift = -55
+
     # Draw the base of the crown
     tft.draw_box(
-        top_left=(60, 120),
-        bottom_right=(140, 130),
+        top_left=(60 + shift, 120),
+        bottom_right=(140 + shift, 130),
         line_color=(255, 215, 0),  # Gold
         fill_color=(255, 215, 0),  # Gold
     )
 
     # Draw the left spike
     tft.draw_line(
-        start=(60, 120), end=(80, 90), line_width=1, color=(255, 215, 0)
+        start=(60 + shift, 120), end=(80 + shift, 90), line_width=1, color=(255, 215, 0)
     )  # Left side
     tft.draw_line(
-        start=(80, 90), end=(100, 120), line_width=1, color=(255, 215, 0)
+        start=(80 + shift, 90),
+        end=(100 + shift, 120),
+        line_width=1,
+        color=(255, 215, 0),
     )  # Right side
 
     # Draw the middle spike
     tft.draw_line(
-        start=(90, 120), end=(110, 80), line_width=1, color=(255, 215, 0)
+        start=(90 + shift, 120),
+        end=(110 + shift, 80),
+        line_width=1,
+        color=(255, 215, 0),
     )  # Left side
     tft.draw_line(
-        start=(110, 80), end=(130, 120), line_width=1, color=(255, 215, 0)
+        start=(110 + shift, 80),
+        end=(130 + shift, 120),
+        line_width=1,
+        color=(255, 215, 0),
     )  # Right side
 
     # Draw the right spike
     tft.draw_line(
-        start=(120, 120), end=(140, 90), line_width=1, color=(255, 215, 0)
+        start=(120 + shift, 120),
+        end=(140 + shift, 90),
+        line_width=1,
+        color=(255, 215, 0),
     )  # Left side
     tft.draw_line(
-        start=(140, 90), end=(160, 120), line_width=1, color=(255, 215, 0)
+        start=(140 + shift, 90),
+        end=(160 + shift, 120),
+        line_width=1,
+        color=(255, 215, 0),
     )  # Right side
 
     # Add jewels to the spikes
     tft.draw_circle(
-        center=(80, 85), radius=3, line_color=(255, 0, 0), fill_color=(255, 0, 0)
+        center=(80 + shift, 85),
+        radius=3,
+        line_color=(255, 0, 0),
+        fill_color=(255, 0, 0),
     )  # Left jewel (red)
     tft.draw_circle(
-        center=(110, 75), radius=3, line_color=(0, 255, 0), fill_color=(0, 255, 0)
+        center=(110 + shift, 75),
+        radius=3,
+        line_color=(0, 255, 0),
+        fill_color=(0, 255, 0),
     )  # Middle jewel (green)
     tft.draw_circle(
-        center=(140, 85), radius=3, line_color=(0, 0, 255), fill_color=(0, 0, 255)
+        center=(140 + shift, 85),
+        radius=3,
+        line_color=(0, 0, 255),
+        fill_color=(0, 0, 255),
     )  # Right jewel (blue)
 
     # Add a decorative text below the crown
-    tft.draw_text("Crown", position=(90, 140), font_size=12, color=(255, 255, 255))
+    tft.draw_text(
+        "Crown", position=(90 + shift, 140), font_size=12, color=(255, 255, 255)
+    )
