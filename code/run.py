@@ -52,9 +52,15 @@ def random_image(tft_display):
         "For the motherland",
     ]
     while not stop_threads:
-        tft_display.draw_text(
-            random.choice(words), position=(5, 40), font_size=24, color=(255, 0, 255)
-        )
+        word = random.choice(words)
+        if len(word) == 1:
+            tft_display.draw_text(
+                word, position=(5, 40), font_size=24, color=(255, 0, 255)
+            )
+        else:
+            tft_display.draw_text(
+                word, position=(5, 40), font_size=10, color=(255, 0, 255)
+            )
         time.sleep(1)
         tft_display.clear_screen("black")
 
