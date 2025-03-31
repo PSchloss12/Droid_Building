@@ -31,11 +31,14 @@ def random_sound(sound_controller):
         "sounds/gallop.wav",
         "sounds/fail.mp3",
         "sounds/regain.wav",
-        "sounds/fall.mp3",
+        "sounds/fanfare.mp3",
     ]
     while not stop_threads:
         sound_controller.play_audio(random.choice(sounds))
         time.sleep(3)
+
+
+display_png = lambda x: tft_display.display_bmp(x, position=(0, 0))
 
 
 def random_image(tft_display):
@@ -52,7 +55,8 @@ def random_image(tft_display):
         "On your knees",
         "For the motherland",
     ]
-    drawings = [draw_castle, draw_crest, draw_crown]
+    drawings = [draw_castle, draw_crown]
+    images = ["2019-Crest-Navy.png", "newcolor.png", "sentlogo.png", "Shieldip2.png"]
     while not stop_threads:
         # word = random.choice(words)
         # if len(word) == 1:
@@ -63,7 +67,11 @@ def random_image(tft_display):
         #     tft_display.draw_text(
         #         word, position=(5, 40), font_size=10, color=(255, 0, 255)
         #     )
-        random.choice(drawings)(tft_display)
+        choice = random.randint(0, 3)
+        if choice < 2:
+            display_png(random.choice(images))
+        else:
+            random.choice(drawings)(tft_display)
         time.sleep(3)
         tft_display.clear_screen("black")
 
