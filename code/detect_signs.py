@@ -64,9 +64,9 @@ def detect_sign_new(cam, model):
                 # Calculate area of the bounding box
                 x1, y1, x2, y2 = box.xyxy[0]
                 area = (x2 - x1) * (y2 - y1)
-                if area < min_area:
-                    color_print("signs too small", "red")
-                    return ""
+                #if area < min_area:
+                #    color_print("signs too small", "red")
+                #    return "", 0
                 class_name = model.names[int(box.cls)]
                 if area > largest_area:
                     largest_area = area
@@ -77,12 +77,12 @@ def detect_sign_new(cam, model):
             sign = largest_obj
         if largest_obj != sign:
             color_print(f"[{sign},{largest_obj}]", "red")
-            return ""
+            return ("", 0)
         time.sleep(0.01)
     color = "green" if largest_obj else "red"
     print("Detected:", end=" ")
     color_print([sign] if sign else [], color)
-    return str(sign), area if sign else ""
+    return (str(sign), area) if sign else ("",0)
 
 
 if __name__ == "__main__":

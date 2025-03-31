@@ -20,7 +20,7 @@ def stop_robot(saber):
     saber.stop()
 
 
-def turn_robot(saber, direction, speed=40, duration=1):
+def turn_robot(saber, direction, speed=45, duration=1):
     """
     Turn the robot in a specified direction.
     direction: "left" or "right"
@@ -44,29 +44,29 @@ def follow_sign(saber, sound_controller, sign):
         print("Sign detected: STOP. Stopping for 10 seconds...")
         sound_controller.play_text_to_speech("Stopping for 10 seconds.")
         stop_robot(saber)
-        time.sleep(10)
+        time.sleep(2)
     elif sign == "left":
         print("Sign detected: LEFT. Turning left...")
         sound_controller.play_text_to_speech("Turning left.")
-        drive_forward(saber, duration=1.2)  # Move forward for 2 seconds before turning
+        drive_forward(saber, duration=1.3)  # Move forward for 2 seconds before turning
         turn_robot(saber, "left")
     elif sign == "right":
         print("Sign detected: RIGHT. Turning right...")
         sound_controller.play_text_to_speech("Turning right.")
-        drive_forward(saber, duration=1.2)  # Move forward for 2 seconds before turning
+        drive_forward(saber, duration=1.3)  # Move forward for 2 seconds before turning
         turn_robot(saber, "right")
     elif sign == "forward":
         print("Sign detected: forward. Continuing forward...")
         sound_controller.play_text_to_speech("Continuing forward.")
-        drive_forward(saber, duration=2)  # Continue forward for 2 seconds
+        drive_forward(saber, duration=1)  # Continue forward for 2 seconds
     elif sign == "continue":
         print("Sign too small. Continuing forward...")
-        sound_controller.play_text_to_speech("Continuing forward.")
-        drive_forward(saber, duration=2)  # Continue forward for 2 seconds
+        sound_controller.play_text_to_speech("Searching for Sign")
+        drive_forward(saber, duration=0.2)  # Continue forward for 2 seconds
     else:
         print(f"Unknown sign detected: {sign}. Ignoring...")
         sound_controller.play_text_to_speech("Unknown sign detected. Ignoring.")
-        drive_forward(saber, duration=0.5)
+        drive_forward(saber, duration=0.3)
 
 
 def main():
@@ -86,8 +86,13 @@ def main():
 
         while True:
             # Scan for signs every second
-            sign, area = detect_sign_new(cam, model)
-            if area < 30000:
+            ret = detect_sign_new(cam, model)
+            print(ret)
+            if len(ret)!=2:
+                sign, area = ret, 0
+            else:
+                sign, area = ret
+            if area < 14500:
                 sign = "continue"
             sign = sign.lower() if sign else ""
             print("*************")
@@ -97,7 +102,7 @@ def main():
                 follow_sign(saber, sound_controller, sign)
                 # Resume driving forward after handling the sign
                 drive_forward(saber, duration=1)
-            time.sleep(1)
+            #time.sleep(0.1)
 
     except KeyboardInterrupt:
         print("Autonomous driving interrupted by user.")
