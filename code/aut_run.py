@@ -4,11 +4,11 @@ from usb_sound_controller import USB_SoundController
 import time
 
 
-def drive_forward(saber, speed=100, duration=1):
+def drive_forward(saber, speed=20, duration=1):
     """
     Drive the robot forward at a specified speed for a specified duration.
     """
-    for i in range(duration * 1000):
+    for i in range(duration * 100):
         saber.drive(speed, 0)  # Forward with no turning
     stop_robot(saber)  # Stop after the duration
 
