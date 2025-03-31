@@ -56,7 +56,13 @@ def random_image(tft_display):
         "For the motherland",
     ]
     drawings = [draw_castle, draw_crown]
-    images = ["2019-Crest-Navy.png", "newcolor.png", "sentlogo.png", "Shieldip2.png"]
+    images = [
+        "2019-Crest-Navy.png",
+        "newcolor.png",
+        "sentlogo.png",
+        "Shieldip2.png",
+        "smolwill.png",
+    ]
     while not stop_threads:
         # word = random.choice(words)
         # if len(word) == 1:
