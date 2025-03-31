@@ -4,7 +4,7 @@ from usb_sound_controller import USB_SoundController
 import time
 
 
-def drive_forward(saber, speed=0.5):
+def drive_forward(saber, speed=50):
     """
     Drive the robot forward at a specified speed.
     """
