@@ -28,9 +28,11 @@ def turn_robot(saber, direction, speed=0.5, duration=2):
     duration: Duration of the turn in seconds
     """
     if direction == "left":
-        saber.drive(0, -speed)  # Turn left
+        for i in range(duration * 100):
+            saber.drive(0, -speed)  # Turn left
     elif direction == "right":
-        saber.drive(0, speed)  # Turn right
+        for i in range(duration * 100):
+            saber.drive(0, speed)  # Turn right
     time.sleep(duration)
     stop_robot(saber)
 
