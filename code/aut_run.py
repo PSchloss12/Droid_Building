@@ -56,13 +56,18 @@ def follow_sign(saber, sound_controller, sign):
         drive_forward(saber, duration=1.2)  # Move forward for 2 seconds before turning
         turn_robot(saber, "right")
     elif sign == "forward":
-        print("Sign detected: UP. Continuing forward...")
+        print("Sign detected: forward. Continuing forward...")
+        sound_controller.play_text_to_speech("Continuing forward.")
+        drive_forward(saber, duration=2)  # Continue forward for 2 seconds
+    elif sign == "continue":
+        print("Sign too small. Continuing forward...")
         sound_controller.play_text_to_speech("Continuing forward.")
         drive_forward(saber, duration=2)  # Continue forward for 2 seconds
     else:
         print(f"Unknown sign detected: {sign}. Ignoring...")
         sound_controller.play_text_to_speech("Unknown sign detected. Ignoring.")
         drive_forward(saber, duration=0.5)
+
 
 def main():
     # Initialize camera and YOLO model
@@ -81,7 +86,9 @@ def main():
 
         while True:
             # Scan for signs every second
-            sign = detect_sign_new(cam, model)
+            sign, area = detect_sign_new(cam, model)
+            if area < 30000:
+                sign = "continue"
             sign = sign.lower() if sign else ""
             print("*************")
             print(sign)
