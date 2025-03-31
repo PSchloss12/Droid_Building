@@ -4,11 +4,11 @@ from usb_sound_controller import USB_SoundController
 import time
 
 
-def drive_forward(saber, speed=20, duration=1):
+def drive_forward(saber, speed=35, duration=1):
     """
     Drive the robot forward at a specified speed for a specified duration.
     """
-    for i in range(duration * 100):
+    for i in range(int(duration * 100)):
         saber.drive(speed, 0)  # Forward with no turning
     stop_robot(saber)  # Stop after the duration
 
@@ -20,7 +20,7 @@ def stop_robot(saber):
     saber.stop()
 
 
-def turn_robot(saber, direction, speed=0.5, duration=2):
+def turn_robot(saber, direction, speed=40, duration=1):
     """
     Turn the robot in a specified direction.
     direction: "left" or "right"
@@ -28,10 +28,10 @@ def turn_robot(saber, direction, speed=0.5, duration=2):
     duration: Duration of the turn in seconds
     """
     if direction == "left":
-        for i in range(duration * 100):
+        for i in range(int(duration * 75)):
             saber.drive(0, -speed)  # Turn left
     elif direction == "right":
-        for i in range(duration * 100):
+        for i in range(int(duration * 75)):
             saber.drive(0, speed)  # Turn right
     stop_robot(saber)
 
@@ -48,12 +48,12 @@ def follow_sign(saber, sound_controller, sign):
     elif sign == "left":
         print("Sign detected: LEFT. Turning left...")
         sound_controller.play_text_to_speech("Turning left.")
-        drive_forward(saber, duration=2)  # Move forward for 2 seconds before turning
+        drive_forward(saber, duration=1.2)  # Move forward for 2 seconds before turning
         turn_robot(saber, "left")
     elif sign == "right":
         print("Sign detected: RIGHT. Turning right...")
         sound_controller.play_text_to_speech("Turning right.")
-        drive_forward(saber, duration=2)  # Move forward for 2 seconds before turning
+        drive_forward(saber, duration=1.2)  # Move forward for 2 seconds before turning
         turn_robot(saber, "right")
     elif sign == "forward":
         print("Sign detected: UP. Continuing forward...")
@@ -62,7 +62,7 @@ def follow_sign(saber, sound_controller, sign):
     else:
         print(f"Unknown sign detected: {sign}. Ignoring...")
         sound_controller.play_text_to_speech("Unknown sign detected. Ignoring.")
-
+        drive_forward(saber, duration=0.5)
 
 def main():
     # Initialize camera and YOLO model

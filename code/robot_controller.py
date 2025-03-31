@@ -13,7 +13,7 @@ def move_robot(saber, control_request, direction):
     # Sends motor commands to the Sabertooth motor controller.
     speed = control_request["reqLeftJoyYValue"] * -1 * direction
     turn = control_request["reqLeftJoyXValue"] #* direction
-    saber.drive(speed, turn)
+    saber.drive(speed*2/3, turn/2)
 
 
 def main():
@@ -25,7 +25,7 @@ def main():
 
         # Initialize Sabertooth motor controller
         saber = Sabertooth()
-        saber.set_ramping(15)  # Fast Ramping 1-10, Slow 11-20, Intermediate 21-80
+        saber.set_ramping(40)  # Fast Ramping 1-10, Slow 11-20, Intermediate 21-80
         isMoving = False
 
         ps5_last_check_time = time.time()
