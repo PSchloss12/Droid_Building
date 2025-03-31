@@ -83,6 +83,9 @@ def main():
         while True:
             # Scan for signs every second
             sign = detect_sign_new(cam, model)
+            print("*************")
+            print(sign)
+            print("*************")
             if sign:
                 follow_sign(saber, sound_controller, sign)
                 # Resume driving forward after handling the sign
