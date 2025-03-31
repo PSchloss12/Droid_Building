@@ -4,11 +4,13 @@ from usb_sound_controller import USB_SoundController
 import time
 
 
-def drive_forward(saber, speed=100):
+def drive_forward(saber, speed=100, duration=1):
     """
-    Drive the robot forward at a specified speed.
+    Drive the robot forward at a specified speed for a specified duration.
     """
-    saber.drive(speed, 0)  # Forward with no turning
+    for i in range(duration * 1000):
+        saber.drive(speed, 0)  # Forward with no turning
+    stop_robot(saber)  # Stop after the duration
 
 
 def stop_robot(saber):
@@ -45,21 +47,17 @@ def follow_sign(saber, sound_controller, sign):
     elif sign == "left":
         print("Sign detected: LEFT. Turning left...")
         sound_controller.play_text_to_speech("Turning left.")
-        drive_forward(saber)
-        time.sleep(2)  # Move forward for a second before turning
-        stop_robot(saber)  # Stop before turning
+        drive_forward(saber, duration=2)  # Move forward for 2 seconds before turning
         turn_robot(saber, "left")
     elif sign == "right":
         print("Sign detected: RIGHT. Turning right...")
         sound_controller.play_text_to_speech("Turning right.")
-        drive_forward(saber)
-        time.sleep(2)  # Move forward for a second before turning
-        stop_robot(saber)  # Stop before turning
+        drive_forward(saber, duration=2)  # Move forward for 2 seconds before turning
         turn_robot(saber, "right")
     elif sign == "up":
         print("Sign detected: UP. Continuing forward...")
         sound_controller.play_text_to_speech("Continuing forward.")
-        drive_forward(saber)
+        drive_forward(saber, duration=2)  # Continue forward for 2 seconds
     else:
         print(f"Unknown sign detected: {sign}. Ignoring...")
         sound_controller.play_text_to_speech("Unknown sign detected. Ignoring.")
@@ -78,7 +76,7 @@ def main():
 
     try:
         print("Starting autonomous driving...")
-        drive_forward(saber)  # Start driving forward
+        drive_forward(saber, duration=1)  # Start driving forward for 1 second
 
         while True:
             # Scan for signs every second
@@ -90,7 +88,7 @@ def main():
             if sign:
                 follow_sign(saber, sound_controller, sign)
                 # Resume driving forward after handling the sign
-                drive_forward(saber)
+                drive_forward(saber, duration=1)
             time.sleep(1)
 
     except KeyboardInterrupt:
@@ -105,11 +103,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # print("hello world")
-    # saber = Sabertooth()
-    # saber.set_ramping(15)
-    # drive_forward(saber)  # Start driving forward
-    # time.sleep(1)  # Drive forward for 5 seconds
-    # stop_robot(saber)  # Stop the robot after 5 seconds
-    # print("goodbye")
     main()
