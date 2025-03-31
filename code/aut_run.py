@@ -1,5 +1,6 @@
 from detect_signs import initialize, detect_sign_new
 from sabertooth import Sabertooth
+from usb_sound_controller import USB_SoundController
 import time
 
 
@@ -32,25 +33,36 @@ def turn_robot(saber, direction, speed=0.5, duration=2):
     stop_robot(saber)
 
 
-def follow_sign(saber, sign):
+def follow_sign(saber, sound_controller, sign):
     """
-    Follow the direction of the detected sign.
+    Follow the direction of the detected sign and announce it.
     """
     if sign == "stop":
         print("Sign detected: STOP. Stopping for 10 seconds...")
+        sound_controller.play_text_to_speech("Stopping for 10 seconds.")
         stop_robot(saber)
         time.sleep(10)
     elif sign == "left":
         print("Sign detected: LEFT. Turning left...")
+        sound_controller.play_text_to_speech("Turning left.")
+        drive_forward(saber)
+        time.sleep(1)  # Move forward for a second before turning
+        stop_robot(saber)  # Stop before turning
         turn_robot(saber, "left")
     elif sign == "right":
         print("Sign detected: RIGHT. Turning right...")
+        sound_controller.play_text_to_speech("Turning right.")
+        drive_forward(saber)
+        time.sleep(1)  # Move forward for a second before turning
+        stop_robot(saber)  # Stop before turning
         turn_robot(saber, "right")
     elif sign == "up":
         print("Sign detected: UP. Continuing forward...")
+        sound_controller.play_text_to_speech("Continuing forward.")
         drive_forward(saber)
     else:
         print(f"Unknown sign detected: {sign}. Ignoring...")
+        sound_controller.play_text_to_speech("Unknown sign detected. Ignoring.")
 
 
 def main():
@@ -61,6 +73,9 @@ def main():
     saber = Sabertooth()
     saber.set_ramping(15)  # Set ramping for smooth motor control
 
+    # Initialize USB Sound Controller
+    sound_controller = USB_SoundController()
+
     try:
         print("Starting autonomous driving...")
         drive_forward(saber)  # Start driving forward
@@ -69,7 +84,7 @@ def main():
             # Scan for signs every second
             sign = detect_sign_new(cam, model)
             if sign:
-                follow_sign(saber, sign)
+                follow_sign(saber, sound_controller, sign)
                 # Resume driving forward after handling the sign
                 drive_forward(saber)
             time.sleep(1)
@@ -82,6 +97,7 @@ def main():
         stop_robot(saber)
         cam.stop()
         saber.close()
+        sound_controller.close()
 
 
 if __name__ == "__main__":
