@@ -54,7 +54,7 @@ def follow_sign(saber, sound_controller, sign):
         sound_controller.play_text_to_speech("Turning right.")
         drive_forward(saber, duration=2)  # Move forward for 2 seconds before turning
         turn_robot(saber, "right")
-    elif sign == "up":
+    elif sign == "forward":
         print("Sign detected: UP. Continuing forward...")
         sound_controller.play_text_to_speech("Continuing forward.")
         drive_forward(saber, duration=2)  # Continue forward for 2 seconds

@@ -189,12 +189,12 @@ def draw_crown(tft):
     tft.clear_screen("black")
 
     # Shift all coordinates left by 55 pixels
-    shift = -55
+    shift = -50
 
     # Draw the base of the crown
     tft.draw_box(
         top_left=(60 + shift, 120),
-        bottom_right=(140 + shift, 130),
+        bottom_right=(160 + shift, 130),
         line_color=(255, 215, 0),  # Gold
         fill_color=(255, 215, 0),  # Gold
     )
