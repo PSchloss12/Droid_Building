@@ -4,7 +4,7 @@ from usb_sound_controller import USB_SoundController
 import time
 
 
-def drive_forward(saber, speed=50):
+def drive_forward(saber, speed=100):
     """
     Drive the robot forward at a specified speed.
     """
@@ -46,14 +46,14 @@ def follow_sign(saber, sound_controller, sign):
         print("Sign detected: LEFT. Turning left...")
         sound_controller.play_text_to_speech("Turning left.")
         drive_forward(saber)
-        time.sleep(1)  # Move forward for a second before turning
+        time.sleep(2)  # Move forward for a second before turning
         stop_robot(saber)  # Stop before turning
         turn_robot(saber, "left")
     elif sign == "right":
         print("Sign detected: RIGHT. Turning right...")
         sound_controller.play_text_to_speech("Turning right.")
         drive_forward(saber)
-        time.sleep(1)  # Move forward for a second before turning
+        time.sleep(2)  # Move forward for a second before turning
         stop_robot(saber)  # Stop before turning
         turn_robot(saber, "right")
     elif sign == "up":
@@ -105,11 +105,11 @@ def main():
 
 
 if __name__ == "__main__":
-    print("hello world")
-    saber = Sabertooth()
-    saber.set_ramping(15)
-    drive_forward(saber)  # Start driving forward
-    time.sleep(1)  # Drive forward for 5 seconds
-    stop_robot(saber)  # Stop the robot after 5 seconds
-    print("goodbye")
-    # main()
+    # print("hello world")
+    # saber = Sabertooth()
+    # saber.set_ramping(15)
+    # drive_forward(saber)  # Start driving forward
+    # time.sleep(1)  # Drive forward for 5 seconds
+    # stop_robot(saber)  # Stop the robot after 5 seconds
+    # print("goodbye")
+    main()
