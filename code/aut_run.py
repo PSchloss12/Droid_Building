@@ -56,10 +56,11 @@ def follow_sign(saber, sound_controller, sign):
         time.sleep(2)  # Move forward for a second before turning
         stop_robot(saber)  # Stop before turning
         turn_robot(saber, "right")
-    elif sign == "up":
+    elif sign == "forward":
         print("Sign detected: UP. Continuing forward...")
         sound_controller.play_text_to_speech("Continuing forward.")
         drive_forward(saber)
+        time.sleep(5)
     else:
         print(f"Unknown sign detected: {sign}. Ignoring...")
         sound_controller.play_text_to_speech("Unknown sign detected. Ignoring.")
