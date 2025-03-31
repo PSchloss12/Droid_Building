@@ -83,6 +83,7 @@ def main():
         while True:
             # Scan for signs every second
             sign = detect_sign_new(cam, model)
+            sign = sign.lower() if sign else ""
             print("*************")
             print(sign)
             print("*************")
