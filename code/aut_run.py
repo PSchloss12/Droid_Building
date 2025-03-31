@@ -105,4 +105,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    saber = Sabertooth()
+    saber.set_ramping(15)
+    drive_forward(saber)  # Start driving forward
+    time.sleep(1)  # Drive forward for 5 seconds
+    stop_robot(saber)  # Stop the robot after 5 seconds
+    # main()
