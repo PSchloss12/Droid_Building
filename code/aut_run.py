@@ -4,6 +4,19 @@ from usb_sound_controller import USB_SoundController
 import time
 
 
+def drive_continuous(saber, speed=35):
+    """
+    Drive the robot forward continuously at a specified speed.
+    Unlike drive_forward(), this function doesn't stop after a duration.
+
+    Parameters:
+        saber: Sabertooth controller object
+        speed: Forward speed (0-100)
+    """
+    # Send a single drive command without stopping
+    saber.drive(speed, 0)  # Forward with no turning
+
+
 def drive_forward(saber, speed=35, duration=1):
     """
     Drive the robot forward at a specified speed for a specified duration.
@@ -88,21 +101,18 @@ def main():
             # Scan for signs every second
             ret = detect_sign_new(cam, model)
             print(ret)
-            if len(ret)!=2:
+            if len(ret) != 2:
                 sign, area = ret, 0
             else:
                 sign, area = ret
             if area < 14500:
                 sign = "continue"
             sign = sign.lower() if sign else ""
-            print("*************")
-            print(sign)
-            print("*************")
             if sign:
                 follow_sign(saber, sound_controller, sign)
                 # Resume driving forward after handling the sign
                 drive_forward(saber, duration=1)
-            #time.sleep(0.1)
+            # time.sleep(0.1)
 
     except KeyboardInterrupt:
         print("Autonomous driving interrupted by user.")
