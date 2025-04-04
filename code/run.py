@@ -1,12 +1,12 @@
-from ups import *
-import robot_controller
-from usb_sound_controller import USB_SoundController
-from tft_display import TFTDisplay
+from Droid_Building.code.classes.ups import *
+import Droid_Building.code.classes.robot_controller as robot_controller
+from Droid_Building.code.classes.usb_sound_controller import USB_SoundController
+from Droid_Building.code.classes.tft_display import TFTDisplay
 import signal
 import random
 import time
 import threading
-from drawings import draw_castle, draw_crest, draw_crown
+from Droid_Building.code.utils.drawings import draw_castle, draw_crest, draw_crown
 
 # Add a global flag to signal threads to stop
 stop_threads = False

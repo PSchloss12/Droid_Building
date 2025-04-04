@@ -5,15 +5,15 @@
 ##########################################################################
 import pygame
 import time
-from sabertooth import Sabertooth
+from Droid_Building.code.classes.sabertooth import Sabertooth
 from ps5_controller import PS5_Controller
 
 
 def move_robot(saber, control_request, direction):
     # Sends motor commands to the Sabertooth motor controller.
     speed = control_request["reqLeftJoyYValue"] * -1 * direction
-    turn = control_request["reqLeftJoyXValue"] #* direction
-    saber.drive(speed*2/3, turn/2)
+    turn = control_request["reqLeftJoyXValue"]  # * direction
+    saber.drive(speed * 2 / 3, turn / 2)
 
 
 def main():

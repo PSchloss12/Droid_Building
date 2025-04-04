@@ -1,6 +1,6 @@
 from detect_signs import initialize, detect_sign_new
-from sabertooth import Sabertooth
-from usb_sound_controller import USB_SoundController
+from Droid_Building.code.classes.sabertooth import Sabertooth
+from Droid_Building.code.classes.usb_sound_controller import USB_SoundController
 import time
 
 

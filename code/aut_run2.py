@@ -1,12 +1,12 @@
 import threading
 import time
 import signal
-import sys  # Added for sys.exit
 import numpy as np
 import cv2
 from detect_signs import initialize, detect_sign_new
-from sabertooth import Sabertooth
-from usb_sound_controller import USB_SoundController
+from Droid_Building.code.classes.sabertooth import Sabertooth
+from Droid_Building.code.classes.usb_sound_controller import USB_SoundController
+from Droid_Building.code.classes.tft_display import TFTDisplay
 
 # Use threading.Event for thread-safe signaling
 stop_event = threading.Event()
@@ -15,8 +15,10 @@ frame_freq = 0.5  # Frequency to check for signs (in seconds)
 saber = None
 sound_controller = None
 
-# Add a lock for thread-safe access to shared resources
-drive_lock = threading.Lock()
+
+def display_frame(frame, tft_display):
+    tft_display.clear_screen("white")
+    tft_display.display_bmp(frame, position=(0, 0))
 
 
 def clean(saber, sound_controller, threads):
@@ -26,10 +28,8 @@ def clean(saber, sound_controller, threads):
     stop_event.set()  # Signal threads to stop
     for thread in threads:
         thread.join()  # Ensure all threads are joined
-    if sound_controller:  # Check if sound_controller is initialized
-        sound_controller.close()
-    if saber:  # Check if saber is initialized
-        saber.close()
+    sound_controller.close()
+    saber.close()
 
 
 def kill_signal_handler(sig, frame):
@@ -37,9 +37,8 @@ def kill_signal_handler(sig, frame):
     Handle Ctrl+C signal to clean up and exit.
     """
     print("Interrupt received, cleaning up...")
-    global threads  # Ensure threads is accessible
     clean(saber, sound_controller, threads)
-    sys.exit(0)  # Use sys.exit for a cleaner exit
+    exit(0)
 
 
 def detect_road(hsv):
@@ -111,7 +110,7 @@ def follow_sign(saber, sound_controller, sign):
             saber.drive(35, 45)  # Turn right
             time.sleep(2)
             saber.stop()
-        elif sign == "forward":
+        elif sign == "up":
             print("Sign detected: UP. Continuing forward...")
             sound_controller.play_text_to_speech("Continuing forward.")
         else:
@@ -126,19 +125,17 @@ def sign_detection_thread(cam, model, saber, sound_controller):
     """
     Thread to detect signs and react accordingly.
     """
+    screen = TFTDisplay()
     while not stop_event.is_set():
-        try:
-            sign, area = detect_sign_new(cam, model)
-            if area >= 14500:  # Check if the sign is of the correct size
-                with drive_lock:  # Ensure thread-safe access
-                    follow_sign(saber, sound_controller, sign)
-            time.sleep(frame_freq)
-        except Exception as e:
-            print(f"Error in sign detection thread: {e}")
+        sign, area, img = detect_sign_new(cam, model)
+        display_frame(img, screen)
+        if area >= 14500:  # Check if the sign is of the correct size
+            follow_sign(saber, sound_controller, sign)
+        time.sleep(frame_freq)
 
 
 def main():
-    global saber, sound_controller, threads  # Declare threads as global
+    global saber, sound_controller
     # Initialize camera, YOLO model, Sabertooth motor controller, and sound controller
     cam, model = initialize()
     saber = Sabertooth()
@@ -162,28 +159,24 @@ def main():
     try:
         print("Starting autonomous driving...")
         while True:
-            try:
-                # Capture frame and convert to HSV
-                frame = cam.capture_array()
-                hsv = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
+            # Capture frame and convert to HSV
+            frame = cam.capture_array()
+            hsv = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
 
-                # Detect road and calculate steering angle
-                lines = detect_road(hsv)
-                steering_angle = calculate_steering_angle(lines)
+            # Detect road and calculate steering angle
+            lines = detect_road(hsv)
+            steering_angle = calculate_steering_angle(lines)
 
-                if steering_angle is None:
-                    print("End of road detected.")
-                    sound_controller.play_text_to_speech("End of road detected.")
-                    break
+            if steering_angle is None:
+                print("End of road detected.")
+                sound_controller.play_text_to_speech("End of road detected.")
+                break
 
-                # Drive the robot based on the steering angle
-                turn = steering_angle / 320 * 45  # Scale turn value
-                with drive_lock:  # Ensure thread-safe access
-                    drive_robot(saber, speed=35, turn=turn)
+            # Drive the robot based on the steering angle
+            turn = steering_angle / 320 * 45  # Scale turn value
+            drive_robot(saber, speed=35, turn=turn)
 
-                time.sleep(0.1)  # Smooth driving loop
-            except Exception as e:
-                print(f"Error in main driving loop: {e}")
+            time.sleep(0.1)  # Smooth driving loop
 
     except KeyboardInterrupt:
         print("Autonomous driving interrupted by user.")
