@@ -159,7 +159,6 @@ class TFTDisplay:
     def _task_display_bmp(self, bmp_path, position):
         try:
             bmp_image = Image.open(bmp_path)
-            bmp_image = bmp_image.convert("RGB")
             self.image.paste(bmp_image, position)
             self._update_display()
         except Exception as e:
@@ -169,6 +168,10 @@ class TFTDisplay:
         # Display a BMP image at the specified position
         try:
             image = cv2.resize(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+            bmp_image = bmp_image.convert("RGB")
+            # image = Image.fromarray(
+            #     cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            # )  # Convert to Pillow format
             self.image.paste(image, position)
             self._update_display()
         except Exception as e:
