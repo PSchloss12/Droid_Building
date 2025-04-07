@@ -1,6 +1,7 @@
-from Droid_Building.code.classes.sabertooth import Sabertooth
-from Droid_Building.code.classes.usb_sound_controller import USB_SoundController
-from Droid_Building.code.classes.tft_display import TFTDisplay
+from sabertooth import Sabertooth
+from usb_sound_controller import USB_SoundController
+from led_controller import LEDController
+from tft_display import TFTDisplay
 import threading, cv2, np, time, queue
 from detect_signs import initialize
 
