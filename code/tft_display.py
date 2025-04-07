@@ -166,16 +166,24 @@ class TFTDisplay:
 
     def display_bmp_image(self, image, position=(0, 0)):
         # Display a BMP image at the specified position
+        print(image)
         try:
-            # image = cv2.resize(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-            # image = image.convert("RGB")
-            image = Image.fromarray(
-                cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            )  # Convert to Pillow format
+            # Ensure the image is resized to fit the screen dimensions
+            if image.shape[:2] != (SCREEN_HEIGHT, SCREEN_WIDTH):
+                image = cv2.resize(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+            # Convert the image to RGB format if needed
+            if image.shape[2] == 3:  # Ensure it's a 3-channel image
+                image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            else:
+                raise ValueError("Invalid image format: Expected 3-channel BGR image.")
+
+            # Paste the image onto the display buffer
             self.image.paste(image, position)
             self._update_display()
         except Exception as e:
             print("Error displaying BMP image:", e)
+            raise e
 
     def _task_draw_box(self, top_left, bottom_right, line_color, fill_color):
         if fill_color:
