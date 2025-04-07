@@ -196,7 +196,7 @@ if __name__ == "__main__":
             count += 1
             if count % 100 == 0:
                 pic_thread = threading.Thread(
-                    target=take_picture(),
+                    target=take_picture,
                     args=(result_queue, cam, screen, model, sound, True),
                     daemon=True,
                 )
@@ -213,7 +213,7 @@ if __name__ == "__main__":
                         turn = ret
             elif count % 10 == 0:
                 pic_thread = threading.Thread(
-                    target=take_picture(),
+                    target=take_picture,
                     args=(result_queue, cam, screen, model, sound, False),
                     daemon=True,
                 )
