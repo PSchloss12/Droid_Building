@@ -4,7 +4,7 @@ from ultralytics import YOLO
 import cv2
 
 # import cv2
-from Droid_Building.code.utils.ColorPrint import color_print
+from ColorPrint import color_print
 
 
 def initialize():
