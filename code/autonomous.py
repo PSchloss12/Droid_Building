@@ -25,7 +25,7 @@ def announce_sign(sound_controller, sign):
         sound_controller.play_text_to_speech("Continuing forward.")
     elif sign == "continue":
         print("Sign too small. Continuing forward...")
-        sound_controller.play_text_to_speech("Approaching Sign")
+        sound_controller.play_text_to_speech("All signs too small")
     else:
         print(f"Unknown sign detected: {sign}. Ignoring...")
         sound_controller.play_text_to_speech("Unknown sign detected. Ignoring.")
@@ -89,7 +89,7 @@ def take_picture(
         lines = cv2.HoughLinesP(
             edges, 1, np.pi / 180, 50, minLineLength=50, maxLineGap=10
         )
-        if lines:
+        if len(lines)>0:
             angles = []
             for line in lines:
                 x1, y1, x2, y2 = line[0]
