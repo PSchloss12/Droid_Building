@@ -1,5 +1,7 @@
 from tft_display import TFTDisplay
 from picamera2 import Picamera2
+import time
+import cv2
 
 screen = TFTDisplay()
 picam2 = Picamera2()
@@ -15,4 +17,7 @@ picam2.start()
 img = picam2.capture_array()
 
 screen.clear_screen("black")
-screen.display_bmp_image(img, position=(0, 0))
+screen.display_bmp_image(img)
+cv2.imshow("img: ",img)
+cv2.waitKey(0)
+print(img.size)

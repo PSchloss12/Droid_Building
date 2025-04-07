@@ -166,7 +166,7 @@ class TFTDisplay:
 
     def display_bmp_image(self, image, position=(0, 0)):
         # Display a BMP image at the specified position
-        print(image)
+        
         try:
             # Ensure the image is resized to fit the screen dimensions
             if image.shape[:2] != (SCREEN_HEIGHT, SCREEN_WIDTH):
