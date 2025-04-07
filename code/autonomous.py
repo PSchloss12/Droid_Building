@@ -89,7 +89,7 @@ def take_picture(
         lines = cv2.HoughLinesP(
             edges, 1, np.pi / 180, 50, minLineLength=50, maxLineGap=10
         )
-        if len(lines) > 0:
+        if lines is not None:
             angles = []
             for line in lines:
                 x1, y1, x2, y2 = line[0]
