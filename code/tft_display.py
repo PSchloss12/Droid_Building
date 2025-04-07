@@ -166,7 +166,8 @@ class TFTDisplay:
 
     def display_bmp_image(self, image, position=(0, 0)):
         # Display a BMP image at the specified position
-        print(image)
+        cv2.imshow("Image", image)
+        cv2.waitKey(0)
         try:
             # Ensure the image is resized to fit the screen dimensions
             if image.shape[:2] != (SCREEN_HEIGHT, SCREEN_WIDTH):
@@ -289,6 +290,32 @@ class TFTDisplay:
         t.start()
         self.threads.append(t)
         return t
+
+    def display_camera_feed(self, camera, delay=0.1):
+        """
+        Continuously display the camera feed on the TFT screen.
+
+        :param camera: An instance of Picamera2.
+        :param delay: Time delay between frames in seconds.
+        """
+        try:
+            while True:
+                # Capture a frame from the camera
+                frame = camera.capture_array()
+
+                # Ensure the frame is resized to fit the screen dimensions
+                if frame.shape[:2] != (SCREEN_HEIGHT, SCREEN_WIDTH):
+                    frame = cv2.resize(frame, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+                # Convert the frame to RGB format and display it
+                self.display_bmp_image(frame)
+
+                # Add a small delay to control the frame rate
+                time.sleep(delay)
+        except KeyboardInterrupt:
+            print("Camera feed display interrupted.")
+        except Exception as e:
+            print("Error displaying camera feed:", e)
 
     def close(self):
         # Signal the worker thread to exit by enqueuing a sentinel.
