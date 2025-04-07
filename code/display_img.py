@@ -21,3 +21,5 @@ screen.display_bmp_image(img)
 cv2.imshow("img: ",img)
 cv2.waitKey(0)
 print(img.size)
+
+screen.display_camera_feed(picam2)
