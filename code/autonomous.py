@@ -89,7 +89,7 @@ def take_picture(
         lines = cv2.HoughLinesP(
             edges, 1, np.pi / 180, 50, minLineLength=50, maxLineGap=10
         )
-        if len(lines)>0:
+        if len(lines) > 0:
             angles = []
             for line in lines:
                 x1, y1, x2, y2 = line[0]
@@ -114,7 +114,7 @@ def take_picture(
 
     if display_img:
         screen.clear_screen("white")
-        screen.display_bmp(frame, position=(0, 0))
+        screen.display_bmp_image(frame, position=(0, 0))
 
     if steering_angle:
         result_queue.put(steering_angle)

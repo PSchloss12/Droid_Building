@@ -3,28 +3,29 @@
 # 3-7-2025
 # Professor McLaughlin
 ################################################################
-import spidev            # For SPI communications
+import spidev  # For SPI communications
 import RPi.GPIO as GPIO  # For controlling GPIO pins
-import threading         # For managing threads
-import time              # For sleep/delay functions
+import threading  # For managing threads
+import time  # For sleep/delay functions
 from PIL import Image, ImageDraw, ImageFont  # For image manipulation
-import math              # For geometric calculations
+import math  # For geometric calculations
 from queue import Queue  # For thread-safe queue
 
 # Define TFT display pins (GPIO numbers) based on your wiring.
-TFT_CS_PIN = 5     # Chip Select (GPIO5)
+TFT_CS_PIN = 5  # Chip Select (GPIO5)
 TFT_RESET_PIN = 6  # Reset (GPIO6)
-TFT_DC_PIN = 26    # Data/Command (GPIO26)
+TFT_DC_PIN = 26  # Data/Command (GPIO26)
 
 # Display specifications for the 1.8" TFT (ST7735R):
 SCREEN_WIDTH = 128
 SCREEN_HEIGHT = 160
 
+
 class TFTDisplay:
     # Class to control a 1.8" TFT display (128x160, 18-bit color) using the ST7735R driver.
     #
     # All drawing functions are enqueued and processed sequentially by a dedicated worker thread.
-    #  
+    #
     # A threading.Lock is used to protect access to the shared image buffer.
     def __init__(self):
         # Set up GPIO.
@@ -117,11 +118,11 @@ class TFTDisplay:
         time.sleep(0.5)
 
         self._send_command(0x3A)  # Color mode.
-        self._send_data(0x06)     # 18-bit color.
+        self._send_data(0x06)  # 18-bit color.
         time.sleep(0.1)
 
         self._send_command(0x36)  # MADCTL.
-        self._send_data(0xC8)     # Classic orientation.
+        self._send_data(0xC8)  # Classic orientation.
         time.sleep(0.1)
 
         self._send_command(0x29)  # Display ON.
@@ -138,7 +139,7 @@ class TFTDisplay:
         GPIO.output(TFT_CS_PIN, GPIO.LOW)
         GPIO.output(TFT_DC_PIN, GPIO.HIGH)
         for i in range(0, len(raw_data), chunk_size):
-            self.spi.xfer2(list(raw_data[i:i+chunk_size]))
+            self.spi.xfer2(list(raw_data[i : i + chunk_size]))
         GPIO.output(TFT_CS_PIN, GPIO.HIGH)
 
     # Task functions that perform the drawing operations.
@@ -163,9 +164,19 @@ class TFTDisplay:
         except Exception as e:
             print("Error displaying BMP:", e)
 
+    def display_bmp_image(self, image, position=(0, 0)):
+        # Display a BMP image at the specified position
+        try:
+            self.image.paste(image, position)
+            self._update_display()
+        except Exception as e:
+            print("Error displaying BMP image:", e)
+
     def _task_draw_box(self, top_left, bottom_right, line_color, fill_color):
         if fill_color:
-            self.draw.rectangle([top_left, bottom_right], outline=line_color, fill=fill_color)
+            self.draw.rectangle(
+                [top_left, bottom_right], outline=line_color, fill=fill_color
+            )
         else:
             self.draw.rectangle([top_left, bottom_right], outline=line_color)
         self._update_display()
@@ -183,20 +194,40 @@ class TFTDisplay:
     def _task_draw_arrow(self, arrow_color, thickness, direction):
         w, h = SCREEN_WIDTH, SCREEN_HEIGHT
         if direction == "up":
-            points = [(w/2, h*0.1), (w*0.1, h*0.9), (w*0.5, h*0.7), (w*0.9, h*0.9)]
+            points = [
+                (w / 2, h * 0.1),
+                (w * 0.1, h * 0.9),
+                (w * 0.5, h * 0.7),
+                (w * 0.9, h * 0.9),
+            ]
         elif direction == "down":
-            points = [(w/2, h*0.9), (w*0.1, h*0.1), (w*0.5, h*0.3), (w*0.9, h*0.1)]
+            points = [
+                (w / 2, h * 0.9),
+                (w * 0.1, h * 0.1),
+                (w * 0.5, h * 0.3),
+                (w * 0.9, h * 0.1),
+            ]
         elif direction == "left":
-            points = [(w*0.1, h/2), (w*0.9, h*0.1), (w*0.7, h/2), (w*0.9, h*0.9)]
+            points = [
+                (w * 0.1, h / 2),
+                (w * 0.9, h * 0.1),
+                (w * 0.7, h / 2),
+                (w * 0.9, h * 0.9),
+            ]
         elif direction == "right":
-            points = [(w*0.9, h/2), (w*0.1, h*0.1), (w*0.3, h/2), (w*0.1, h*0.9)]
+            points = [
+                (w * 0.9, h / 2),
+                (w * 0.1, h * 0.1),
+                (w * 0.3, h / 2),
+                (w * 0.1, h * 0.9),
+            ]
         else:
             print("Invalid direction for arrow. Use up, down, left, or right.")
             return
         self.draw.polygon(points, fill=arrow_color, outline=arrow_color)
         if thickness > 1:
             for i in range(1, thickness):
-                offset_points = [(x+i, y+i) for (x, y) in points]
+                offset_points = [(x + i, y + i) for (x, y) in points]
                 self.draw.polygon(offset_points, outline=arrow_color)
         self._update_display()
 
@@ -221,8 +252,12 @@ class TFTDisplay:
     def display_bmp(self, bmp_path, position=(0, 0)):
         self._enqueue(self._task_display_bmp, bmp_path, position)
 
-    def draw_box(self, top_left, bottom_right, line_color=(255, 255, 255), fill_color=None):
-        self._enqueue(self._task_draw_box, top_left, bottom_right, line_color, fill_color)
+    def draw_box(
+        self, top_left, bottom_right, line_color=(255, 255, 255), fill_color=None
+    ):
+        self._enqueue(
+            self._task_draw_box, top_left, bottom_right, line_color, fill_color
+        )
 
     def draw_circle(self, center, radius, line_color=(255, 255, 255), fill_color=None):
         self._enqueue(self._task_draw_circle, center, radius, line_color, fill_color)
@@ -257,42 +292,59 @@ class TFTDisplay:
             print("GPIO cleanup error:", e)
         print("Display closed gracefully.")
 
+
 ###############################
 # Test Routine
 ###############################
-if __name__ == '__main__':
+if __name__ == "__main__":
     display = TFTDisplay()
     try:
         print("Clearing screen to black...")
         display.clear_screen("black")
         time.sleep(1)
-        
+
         print("Drawing text in various sizes...")
         display.clear_screen("black")
-        display.draw_text("Small Text", position=(5, 5), font_size=12, color=(255, 255, 0))
+        display.draw_text(
+            "Small Text", position=(5, 5), font_size=12, color=(255, 255, 0)
+        )
         time.sleep(1)
         display.clear_screen("black")
-        display.draw_text("Medium Text", position=(5, 20), font_size=18, color=(0, 255, 255))
+        display.draw_text(
+            "Medium Text", position=(5, 20), font_size=18, color=(0, 255, 255)
+        )
         time.sleep(1)
         display.clear_screen("black")
-        display.draw_text("Large Text", position=(5, 40), font_size=24, color=(255, 0, 255))
+        display.draw_text(
+            "Large Text", position=(5, 40), font_size=24, color=(255, 0, 255)
+        )
         time.sleep(1)
-        
+
         print("Drawing box with fill and outline...")
         display.clear_screen("black")
-        display.draw_box(top_left=(5, 5), bottom_right=(120, 60), line_color=(0, 255, 0), fill_color=(0, 0, 255))
+        display.draw_box(
+            top_left=(5, 5),
+            bottom_right=(120, 60),
+            line_color=(0, 255, 0),
+            fill_color=(0, 0, 255),
+        )
         time.sleep(1)
-        
+
         print("Drawing circle (outline only)...")
         display.clear_screen("black")
         display.draw_circle(center=(64, 80), radius=40, line_color=(255, 255, 255))
         time.sleep(1)
-        
+
         print("Drawing circle (filled)...")
         display.clear_screen("black")
-        display.draw_circle(center=(64, 80), radius=40, line_color=(255, 255, 255), fill_color=(255, 0, 0))
+        display.draw_circle(
+            center=(64, 80),
+            radius=40,
+            line_color=(255, 255, 255),
+            fill_color=(255, 0, 0),
+        )
         time.sleep(1)
-        
+
         print("Drawing radiating lines from center...")
         display.clear_screen("black")
         center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
@@ -300,29 +352,36 @@ if __name__ == '__main__':
             rad = math.radians(angle)
             end_x = int(center[0] + 60 * math.cos(rad))
             end_y = int(center[1] + 60 * math.sin(rad))
-            display.draw_line(start=center, end=(end_x, end_y), line_width=1, color=(0, 255, 0))
+            display.draw_line(
+                start=center, end=(end_x, end_y), line_width=1, color=(0, 255, 0)
+            )
         time.sleep(2)
-        
+
         print("Drawing arrow pointing up...")
         display.clear_screen("black")
         display.draw_arrow(arrow_color=(255, 255, 0), thickness=4, direction="up")
         time.sleep(2)
-        
+
         print("Drawing arrow pointing right...")
         display.clear_screen("black")
         display.draw_arrow(arrow_color=(255, 0, 255), thickness=4, direction="right")
         time.sleep(2)
-        
+
         print("Drawing octagon...")
         display.clear_screen("black")
-        display.draw_octagon(center=(64, 80), size=40, line_color=(255, 255, 255), fill_color=(0, 128, 128))
+        display.draw_octagon(
+            center=(64, 80),
+            size=40,
+            line_color=(255, 255, 255),
+            fill_color=(0, 128, 128),
+        )
         time.sleep(2)
-        
+
         print("Displaying BMP image...")
         display.clear_screen("black")
         display.display_bmp("test.bmp", position=(0, 70))
         time.sleep(2)
-        
+
     except KeyboardInterrupt:
         print("Interrupted by user.")
     finally:
