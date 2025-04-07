@@ -221,7 +221,8 @@ if __name__ == "__main__":
                 pic_thread.join()
                 if not result_queue.empty():
                     ret = result_queue.get()
-                    turn = float(ret)
+                    if ret is not None:
+                        turn = float(ret)
             drive_robot(saber, speed=20, turn=turn)
             turn = 0
         except KeyboardInterrupt:
