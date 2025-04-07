@@ -10,6 +10,7 @@ import time  # For sleep/delay functions
 from PIL import Image, ImageDraw, ImageFont  # For image manipulation
 import math  # For geometric calculations
 from queue import Queue  # For thread-safe queue
+import cv2
 
 # Define TFT display pins (GPIO numbers) based on your wiring.
 TFT_CS_PIN = 5  # Chip Select (GPIO5)
@@ -167,6 +168,7 @@ class TFTDisplay:
     def display_bmp_image(self, image, position=(0, 0)):
         # Display a BMP image at the specified position
         try:
+            image = cv2.resize(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
             self.image.paste(image, position)
             self._update_display()
         except Exception as e:
