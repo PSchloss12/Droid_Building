@@ -2,7 +2,8 @@ from sabertooth import Sabertooth
 from usb_sound_controller import USB_SoundController
 from led_controller import LEDController
 from tft_display import TFTDisplay
-import threading, cv2, np, time, queue
+import threading, cv2, time, queue
+import numpy as np
 from detect_signs import initialize
 
 
