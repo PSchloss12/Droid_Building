@@ -89,7 +89,7 @@ def take_picture(
         lines = cv2.HoughLinesP(
             edges, 1, np.pi / 180, 50, minLineLength=50, maxLineGap=10
         )
-        if len(lines) > 0:
+        if lines is not None:
             angles = []
             for line in lines:
                 x1, y1, x2, y2 = line[0]
@@ -221,7 +221,8 @@ if __name__ == "__main__":
                 pic_thread.join()
                 if not result_queue.empty():
                     ret = result_queue.get()
-                    turn = float(ret)
+                    if ret is not None:
+                        turn = float(ret)
             drive_robot(saber, speed=20, turn=turn)
             turn = 0
         except KeyboardInterrupt:
