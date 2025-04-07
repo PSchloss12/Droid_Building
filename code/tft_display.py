@@ -164,27 +164,6 @@ class TFTDisplay:
         except Exception as e:
             print("Error displaying BMP:", e)
 
-    def display_bmp_image(self, image, position=(0, 0)):
-        # Display a BMP image at the specified position
-
-        try:
-            # Ensure the image is resized to fit the screen dimensions
-            if image.shape[:2] != (SCREEN_HEIGHT, SCREEN_WIDTH):
-                image = cv2.resize(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-
-            # Convert the image to RGB format if needed
-            if image.shape[2] == 3:  # Ensure it's a 3-channel image
-                image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-            else:
-                raise ValueError("Invalid image format: Expected 3-channel BGR image.")
-
-            # Paste the image onto the display buffer
-            self.image.paste(image, position)
-            self._update_display()
-        except Exception as e:
-            print("Error displaying BMP image:", e)
-            raise e
-
     def _task_draw_box(self, top_left, bottom_right, line_color, fill_color):
         if fill_color:
             self.draw.rectangle(
@@ -315,6 +294,28 @@ class TFTDisplay:
             print("Camera feed display interrupted.")
         except Exception as e:
             print("Error displaying camera feed:", e)
+
+    def display_bmp_image(self, image, position=(0, 0)):
+        # Display a BMP image at the specified position
+
+        try:
+            # Ensure the image is resized to fit the screen dimensions
+            if image.shape[:2] != (SCREEN_HEIGHT, SCREEN_WIDTH):
+                image = cv2.resize(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+            # Convert the image to RGB format if needed
+            if image.shape[2] == 3:  # Ensure it's a 3-channel image
+                image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            else:
+                raise ValueError("Invalid image format: Expected 3-channel BGR image.")
+
+            # Paste the image onto the display buffer
+            self.image.paste(image, position)
+            self._update_display()
+            time.sleep(0.1)  # Small delay to allow the display to update
+        except Exception as e:
+            print("Error displaying BMP image:", e)
+            raise e
 
     def close(self):
         # Signal the worker thread to exit by enqueuing a sentinel.
