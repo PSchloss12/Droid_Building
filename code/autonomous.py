@@ -8,7 +8,7 @@ from detect_signs import initialize
 from add_lines import *
 
 speed = 20
-turn_speed = 40
+turn_speed = 10
 
 
 def announce_sign(sound_controller, sign):
@@ -50,11 +50,20 @@ def take_picture(
     frame, steering_point, is_intersection = process_image_with_steering_overlay(
         raw_frame
     )
+    print(f"Steering point: {steering_point}")
     if steering_point[0] == -1 and steering_point[1] == -1 and not is_intersection:
+        cv2.imshow("Annotated Steering Overlay", frame)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
         result_queue.put(None)
         return
 
-    if detect_sign and is_intersection:
+    # if is_intersection:
+    #     cv2.imshow("Annotated Steering Overlay", frame)
+    #     cv2.waitKey(500)
+    #     cv2.destroyAllWindows()
+
+    if False and detect_sign and is_intersection:
         results = model(raw_frame)
         largest_area = 0
         for result in results:
@@ -79,14 +88,18 @@ def take_picture(
                     largest_area = area
                     largest_sign = class_name
         if largest_area < min_sign_area:
-            largest_sign = "continue"
-        announce_sign(sound, largest_sign)
+            largest_sign = None
+        else:
+            announce_sign(sound, largest_sign)
 
     if display_img:
         screen.clear_screen("white")
         screen.display_bmp_image(frame, position=(0, 0))
+        # cv2.imshow("Annotated Steering Overlay", frame)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
 
-    if largest_sign is None:
+    if largest_sign is not None:
         result_queue.put(largest_sign)
     x, y = steering_point
     steering_angle = np.arctan2(y - frame.shape[0] // 2, x - frame.shape[1] // 2)
@@ -142,6 +155,8 @@ def follow_sign(saber, sign):
     elif sign == "right":
         drive_forward(saber, duration=1.3)  # Move forward for 2 seconds before turning
         turn_robot(saber, "right")
+    elif sign == "continue":
+        drive_forward(saber, duration=0.5)
 
 
 def clean(saber, screen, sound):
@@ -158,18 +173,24 @@ if __name__ == "__main__":
     sound = USB_SoundController()
     saber = Sabertooth()
     screen = TFTDisplay()
+
     saber.set_ramping(15)
     result_queue = queue.Queue()
 
     count = 0
     turn = 0
+    ready = True
     while 1:
+        print(count)
         try:
             count += 1
-            if count % 100 == 0:
+            # if count % 10 == 0:
+            if ready:
+                ready = False
+                show = False #count%100==0
                 pic_thread = threading.Thread(
                     target=take_picture,
-                    args=(result_queue, cam, screen, model, sound, True),
+                    args=(result_queue, cam, screen, model, sound, True, show),
                     daemon=True,
                 )
                 pic_thread.start()
@@ -181,7 +202,9 @@ if __name__ == "__main__":
                         break
                     elif type(ret) == str:
                         follow_sign(saber, ret)
+                        ready = True
                     else:
+                        ready = True
                         try:
                             turn = (
                                 float(ret) * turn_speed
@@ -191,18 +214,21 @@ if __name__ == "__main__":
                                 f"Warning: Unable to cast ret ({ret}) to float. Ignoring this value."
                             )
                             turn = 0  # Default to 0 if casting fails
-            elif count % 10 == 0:
-                pic_thread = threading.Thread(
-                    target=take_picture,
-                    args=(result_queue, cam, screen, model, sound, False),
-                    daemon=True,
-                )
-                pic_thread.start()
-                pic_thread.join()
-                if not result_queue.empty():
-                    ret = result_queue.get()
-                    if ret is not None:
-                        turn = float(ret)
+                else:
+                    print("No result from queue. Continuing...")
+            # elif count % 10 == 0:
+            #     pic_thread = threading.Thread(
+            #         target=take_picture,
+            #         args=(result_queue, cam, screen, model, sound, False),
+            #         daemon=True,
+            #     )
+            #     pic_thread.start()
+            #     pic_thread.join()
+            #     if not result_queue.empty():
+            #         ret = result_queue.get()
+            #         if ret is not None:
+            #             turn = float(ret)
+            print(f"Steering angle: {turn} ", ready)
             drive_robot(saber, speed=speed, turn=turn)
             turn = 0
         except KeyboardInterrupt:

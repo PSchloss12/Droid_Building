@@ -7,7 +7,7 @@ import numpy as np
 
 def draw_ransac_lines(image, centroids, color=(255, 255, 0)):
     if len(centroids) < 2:
-        return image  # not enough points
+        return image, False  # not enough points
 
     # Convert to numpy array
     points = np.array(centroids)
@@ -48,22 +48,25 @@ def draw_ransac_lines(image, centroids, color=(255, 255, 0)):
     return image, intersection_detected
 
 
-def process_image_with_steering_overlay(frame):
+def process_image_with_steering_overlay(frame, from_file=False):
     intersection_detected = False
     avg_x, avg_y = -1, -1
 
-    frame = cv2.imread(frame)
+    if from_file:
+        frame = cv2.imread(frame)
     frame = cv2.resize(frame, (640, 480))  # Resize for consistency
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # Yellow mask (your tuned values)
     # lower_yellow = np.array([18, 93, 132])
     # upper_yellow = np.array([26, 255, 255])
-    lower_yellow = np.array([20, 100, 100])
-    upper_yellow = np.array([35, 255, 255])
+    lower_yellow = np.array([20, 26, 100])
+    s_max = 82
+    upper_yellow = np.array([32, 255, 255])
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
-    # cv2.imshow("Yello Mask", mask)
-    # cv2.waitKey(0)
+    if from_file:
+        cv2.imshow("Yello Mask", mask)
+        cv2.waitKey(0)
 
     # Morphological cleanup
     kernel = np.ones((5, 5), np.uint8)
@@ -91,7 +94,8 @@ def process_image_with_steering_overlay(frame):
 
         if centroids:
             # Average largest  centroids
-            top_centroids = sorted(centroids, key=lambda pt: pt[1], reverse=True)[:2]
+            top_centroids = sorted(centroids, key=lambda pt: pt[1], reverse=True)[:3]
+            # top_centroids = centroids
             avg_x = int(np.mean([pt[0] for pt in top_centroids]))
             avg_y = int(np.mean([pt[1] for pt in top_centroids]))
 
@@ -109,11 +113,11 @@ def process_image_with_steering_overlay(frame):
             len(centroids) >= 5 or intersection_suggested
         ):  # enough lines to suggest complexity
             x_vals = [pt[0] for pt in centroids]
-            print("Intersection detected ", x_vals)
+            # print("Intersection detected ", x_vals)
             spread = max(x_vals) - min(x_vals)
 
-            # if spread > frame.shape[1] * 0.5:  # half the frame width
-            if spread > 100:
+            if spread > frame.shape[1] * 0.5:  # half the frame width
+            # if spread > 100:
                 intersection_detected = True
             else:
                 intersection_detected = False
@@ -133,9 +137,10 @@ def process_image_with_steering_overlay(frame):
             )
 
     # Show results
-    cv2.imshow("Annotated Steering Overlay", annotated)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    if from_file:
+        cv2.imshow("Annotated Steering Overlay", annotated)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
     if contours:
         return annotated, (avg_x, avg_y), intersection_detected
@@ -144,5 +149,5 @@ def process_image_with_steering_overlay(frame):
 
 
 if __name__ == "__main__":
-    ret = process_image_with_steering_overlay("data/road_10.jpg")
+    ret = process_image_with_steering_overlay("data/road_17.jpg", True)
     print(ret[1])
