@@ -5,6 +5,10 @@ from tft_display import TFTDisplay
 import threading, cv2, time, queue
 import numpy as np
 from detect_signs import initialize
+from add_lines import *
+
+speed = 20
+turn_speed = 40
 
 
 def announce_sign(sound_controller, sign):
@@ -32,7 +36,7 @@ def announce_sign(sound_controller, sign):
 
 
 def take_picture(
-    result_queue, picam2, screen, model, sound, detect_sign=False, display_img=True
+    result_queue, picam2, screen, model, sound, detect_sign=True, display_img=True
 ):
     """
     Returns the new steering angle unless a large enough sign is detected
@@ -41,13 +45,16 @@ def take_picture(
 
     raw_frame = picam2.capture_array()
 
-    frame = None
-    if display_img:
-        frame = raw_frame.copy()
-
     largest_sign = None
-    steering_angle = None
-    if detect_sign:
+
+    frame, steering_point, is_intersection = process_image_with_steering_overlay(
+        raw_frame
+    )
+    if steering_point[0] == -1 and steering_point[1] == -1 and not is_intersection:
+        result_queue.put(None)
+        return
+
+    if detect_sign and is_intersection:
         results = model(raw_frame)
         largest_area = 0
         for result in results:
@@ -74,51 +81,16 @@ def take_picture(
         if largest_area < min_sign_area:
             largest_sign = "continue"
         announce_sign(sound, largest_sign)
-    if not detect_sign or not largest_sign or largest_sign == "continue":
-        # Calculate lines to follow
-        hsv = cv2.cvtColor(raw_frame, cv2.COLOR_RGB2HSV)
-        h_mean, s_mean, v_mean = (
-            np.mean(hsv[:, :, 0]),
-            np.mean(hsv[:, :, 1]),
-            np.mean(hsv[:, :, 2]),
-        )
-        lower_bound = np.array([h_mean - 10, s_mean - 50, v_mean - 50])
-        upper_bound = np.array([h_mean + 10, s_mean + 50, v_mean + 50])
-        mask = cv2.inRange(hsv, lower_bound, upper_bound)
-        edges = cv2.Canny(mask, 50, 150)
-        lines = cv2.HoughLinesP(
-            edges, 1, np.pi / 180, 50, minLineLength=50, maxLineGap=10
-        )
-        if lines is not None:
-            angles = []
-            for line in lines:
-                x1, y1, x2, y2 = line[0]
-                angle = np.arctan2(y2 - y1, x2 - x1) * 180 / np.pi
-                angles.append(angle)
-                if display_img:
-                    cv2.line(frame, (x1, y1), (x2, y2), (255, 255, 255), 2)
-            steering_angle = np.mean(angles) * 0.14
-        if steering_angle and display_img:
-            line_length = 50
-            x_center = int(frame.shape[1] / 2)
-            y_bottom = int(frame.shape[0])
-            x_end = int(x_center + line_length * np.sin(np.radians(steering_angle)))
-            y_end = int(y_bottom - line_length * np.cos(np.radians(steering_angle)))
-            cv2.line(
-                frame,
-                (x_center, y_bottom),  # Start point (bottom center of the frame)
-                (x_end, y_end),  # End point (based on steering angle)
-                (255, 255, 0),  # Cyan color (BGR format)
-                2,  # Line thickness
-            )
 
     if display_img:
         screen.clear_screen("white")
         screen.display_bmp_image(frame, position=(0, 0))
 
-    if steering_angle:
-        result_queue.put(steering_angle)
-    result_queue.put(largest_sign)
+    if largest_sign is None:
+        result_queue.put(largest_sign)
+    x, y = steering_point
+    steering_angle = np.arctan2(y - frame.shape[0] // 2, x - frame.shape[1] // 2)
+    result_queue.put(steering_angle)
 
 
 def drive_robot(saber, speed=35, turn=0):
@@ -204,13 +176,21 @@ if __name__ == "__main__":
                 pic_thread.join()
                 if not result_queue.empty():
                     ret = result_queue.get()
-                    if not ret:
+                    if ret is None:
                         print("end of road. exiting...")
                         break
                     elif type(ret) == str:
                         follow_sign(saber, ret)
                     else:
-                        turn = ret
+                        try:
+                            turn = (
+                                float(ret) * turn_speed
+                            )  # Attempt to cast ret to a float
+                        except ValueError:
+                            print(
+                                f"Warning: Unable to cast ret ({ret}) to float. Ignoring this value."
+                            )
+                            turn = 0  # Default to 0 if casting fails
             elif count % 10 == 0:
                 pic_thread = threading.Thread(
                     target=take_picture,
@@ -223,7 +203,7 @@ if __name__ == "__main__":
                     ret = result_queue.get()
                     if ret is not None:
                         turn = float(ret)
-            drive_robot(saber, speed=20, turn=turn)
+            drive_robot(saber, speed=speed, turn=turn)
             turn = 0
         except KeyboardInterrupt:
             print("Exiting...")
