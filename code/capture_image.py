@@ -42,7 +42,7 @@ def main():
     # Initialize Picamera2
     picam2 = Picamera2()
     config = picam2.create_still_configuration(
-        main={"size": (480, 480), "format": "RGB888"},  # Small but clear resolution, RGB for ML models
+        main={"size": (1024, 640), "format": "RGB888"},  # Small but clear resolution, RGB for ML models
         lores={"size": (320, 240)},  # Optional low-res for faster preview if needed
         display="lores"  # Use low-res for previewing (if using)
     )

@@ -57,9 +57,13 @@ def process_image_with_steering_overlay(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # Yellow mask (your tuned values)
-    lower_yellow = np.array([18, 93, 132])
-    upper_yellow = np.array([26, 255, 255])
+    # lower_yellow = np.array([18, 93, 132])
+    # upper_yellow = np.array([26, 255, 255])
+    lower_yellow = np.array([20, 100, 100])
+    upper_yellow = np.array([35, 255, 255])
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+    # cv2.imshow("Yello Mask", mask)
+    # cv2.waitKey(0)
 
     # Morphological cleanup
     kernel = np.ones((5, 5), np.uint8)
@@ -87,7 +91,7 @@ def process_image_with_steering_overlay(frame):
 
         if centroids:
             # Average largest  centroids
-            top_centroids = sorted(centroids, key=lambda pt: pt[1], reverse=True)[:5]
+            top_centroids = sorted(centroids, key=lambda pt: pt[1], reverse=True)[:2]
             avg_x = int(np.mean([pt[0] for pt in top_centroids]))
             avg_y = int(np.mean([pt[1] for pt in top_centroids]))
 
@@ -129,9 +133,9 @@ def process_image_with_steering_overlay(frame):
             )
 
     # Show results
-    # cv2.imshow("Annotated Steering Overlay", annotated)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow("Annotated Steering Overlay", annotated)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     if contours:
         return annotated, (avg_x, avg_y), intersection_detected
@@ -140,4 +144,5 @@ def process_image_with_steering_overlay(frame):
 
 
 if __name__ == "__main__":
-    process_image_with_steering_overlay("laptop/road.png")
+    ret = process_image_with_steering_overlay("data/road_10.jpg")
+    print(ret[1])
