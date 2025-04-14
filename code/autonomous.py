@@ -6,9 +6,10 @@ import threading, cv2, time, queue
 import numpy as np
 from detect_signs import initialize
 from add_lines import *
+from drive import *
 
 speed = 20
-turn_speed = 10
+turn_speed = 1
 
 
 def announce_sign(sound_controller, sign):
@@ -47,10 +48,9 @@ def take_picture(
 
     largest_sign = None
 
-    frame, steering_point, is_intersection = process_image_with_steering_overlay(
+    frame, steering_point, slope, is_intersection = process_image_with_steering_overlay(
         raw_frame
     )
-    print(f"Steering point: {steering_point}")
     if steering_point[0] == -1 and steering_point[1] == -1 and not is_intersection:
         cv2.imshow("Annotated Steering Overlay", frame)
         cv2.waitKey(0)
@@ -59,9 +59,9 @@ def take_picture(
         return
 
     # if is_intersection:
-    #     cv2.imshow("Annotated Steering Overlay", frame)
-    #     cv2.waitKey(500)
-    #     cv2.destroyAllWindows()
+    # cv2.imshow("Annotated Steering Overlay", frame)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     if False and detect_sign and is_intersection:
         results = model(raw_frame)
@@ -102,47 +102,14 @@ def take_picture(
     if largest_sign is not None:
         result_queue.put(largest_sign)
     x, y = steering_point
-    steering_angle = np.arctan2(y - frame.shape[0] // 2, x - frame.shape[1] // 2)
+    # print(frame.shape)
+    steering_angle = np.arctan2(y, x - frame.shape[1] // 2)
+    if abs(slope) <= 2:
+        steering_angle = 7 if slope > 0 else -7
+    else:
+        steering_angle = 0
+    # steering_angle = int(x - (frame.shape[1] // 2))
     result_queue.put(steering_angle)
-
-
-def drive_robot(saber, speed=35, turn=0):
-    saber.drive(speed, turn)
-
-
-def drive_distance(saber, speed=35, distance=1):
-    """
-    Drive the robot forward for a specified distance.
-    The distance is approximated based on time and speed.
-    """
-    # Assuming a linear relationship between speed and distance covered per second
-    time_to_drive = distance / (speed / 127)  # Scale time based on speed
-    saber.drive(speed, 0)  # Drive forward with no turn
-    time.sleep(time_to_drive)  # Drive for the calculated time
-    saber.stop()  # Stop the robot after driving
-
-
-def drive_forward(saber, speed=35, duration=1):
-    """
-    Drive the robot forward at a specified speed for a specified duration.
-    """
-    for i in range(int(duration * 100)):
-        saber.drive(speed, 0)  # Forward with no turning
-    stop_robot(saber)  # Stop after the duration
-
-
-def stop_robot(saber):
-    saber.stop()
-
-
-def turn_robot(saber, direction, speed=45, duration=1):
-    if direction == "left":
-        for i in range(int(duration * 75)):
-            saber.drive(0, -speed)  # Turn left
-    elif direction == "right":
-        for i in range(int(duration * 75)):
-            saber.drive(0, speed)  # Turn right
-    stop_robot(saber)
 
 
 def follow_sign(saber, sign):

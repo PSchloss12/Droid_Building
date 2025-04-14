@@ -9,7 +9,7 @@ import time
 import RPi.GPIO as GPIO
 
 class Servo:
-    def __init__(self, pin=22, initial_angle=90, time_per_degree=0.004):
+    def __init__(self, pin=21, initial_angle=90, time_per_degree=0.004):
         # param pin: GPIO pin used for the servo (default 22)
         # param initial_angle: starting angle (default 90°)
         # param time_per_degree: estimated seconds needed per degree movement.

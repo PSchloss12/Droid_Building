@@ -343,59 +343,59 @@ if __name__ == "__main__":
         display.clear_screen("black")
         time.sleep(1)
 
-        print("Drawing text in various sizes...")
-        display.clear_screen("black")
-        display.draw_text(
-            "Small Text", position=(5, 5), font_size=12, color=(255, 255, 0)
-        )
-        time.sleep(1)
-        display.clear_screen("black")
-        display.draw_text(
-            "Medium Text", position=(5, 20), font_size=18, color=(0, 255, 255)
-        )
-        time.sleep(1)
-        display.clear_screen("black")
-        display.draw_text(
-            "Large Text", position=(5, 40), font_size=24, color=(255, 0, 255)
-        )
-        time.sleep(1)
+        # print("Drawing text in various sizes...")
+        # display.clear_screen("black")
+        # display.draw_text(
+        #     "Small Text", position=(5, 5), font_size=12, color=(255, 255, 0)
+        # )
+        # time.sleep(1)
+        # display.clear_screen("black")
+        # display.draw_text(
+        #     "Medium Text", position=(5, 20), font_size=18, color=(0, 255, 255)
+        # )
+        # time.sleep(1)
+        # display.clear_screen("black")
+        # display.draw_text(
+        #     "Large Text", position=(5, 40), font_size=24, color=(255, 0, 255)
+        # )
+        # time.sleep(1)
 
-        print("Drawing box with fill and outline...")
-        display.clear_screen("black")
-        display.draw_box(
-            top_left=(5, 5),
-            bottom_right=(120, 60),
-            line_color=(0, 255, 0),
-            fill_color=(0, 0, 255),
-        )
-        time.sleep(1)
+        # print("Drawing box with fill and outline...")
+        # display.clear_screen("black")
+        # display.draw_box(
+        #     top_left=(5, 5),
+        #     bottom_right=(120, 60),
+        #     line_color=(0, 255, 0),
+        #     fill_color=(0, 0, 255),
+        # )
+        # time.sleep(1)
 
-        print("Drawing circle (outline only)...")
-        display.clear_screen("black")
-        display.draw_circle(center=(64, 80), radius=40, line_color=(255, 255, 255))
-        time.sleep(1)
+        # print("Drawing circle (outline only)...")
+        # display.clear_screen("black")
+        # display.draw_circle(center=(64, 80), radius=40, line_color=(255, 255, 255))
+        # time.sleep(1)
 
-        print("Drawing circle (filled)...")
-        display.clear_screen("black")
-        display.draw_circle(
-            center=(64, 80),
-            radius=40,
-            line_color=(255, 255, 255),
-            fill_color=(255, 0, 0),
-        )
-        time.sleep(1)
+        # print("Drawing circle (filled)...")
+        # display.clear_screen("black")
+        # display.draw_circle(
+        #     center=(64, 80),
+        #     radius=40,
+        #     line_color=(255, 255, 255),
+        #     fill_color=(255, 0, 0),
+        # )
+        # time.sleep(1)
 
-        print("Drawing radiating lines from center...")
-        display.clear_screen("black")
-        center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-        for angle in range(0, 360, 30):
-            rad = math.radians(angle)
-            end_x = int(center[0] + 60 * math.cos(rad))
-            end_y = int(center[1] + 60 * math.sin(rad))
-            display.draw_line(
-                start=center, end=(end_x, end_y), line_width=1, color=(0, 255, 0)
-            )
-        time.sleep(2)
+        # print("Drawing radiating lines from center...")
+        # display.clear_screen("black")
+        # center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        # for angle in range(0, 360, 30):
+        #     rad = math.radians(angle)
+        #     end_x = int(center[0] + 60 * math.cos(rad))
+        #     end_y = int(center[1] + 60 * math.sin(rad))
+        #     display.draw_line(
+        #         start=center, end=(end_x, end_y), line_width=1, color=(0, 255, 0)
+        #     )
+        # time.sleep(2)
 
         print("Drawing arrow pointing up...")
         display.clear_screen("black")

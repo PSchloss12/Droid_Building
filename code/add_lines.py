@@ -7,7 +7,7 @@ import numpy as np
 
 def draw_ransac_lines(image, centroids, color=(255, 255, 0)):
     if len(centroids) < 2:
-        return image, False  # not enough points
+        return image, False, 0  # not enough points
 
     # Convert to numpy array
     points = np.array(centroids)
@@ -26,6 +26,7 @@ def draw_ransac_lines(image, centroids, color=(255, 255, 0)):
     pt1 = (int(x_range[0]), int(y_pred[0]))
     pt2 = (int(x_range[1]), int(y_pred[1]))
     cv2.line(image, pt1, pt2, color, 2)
+    slope = (y_pred[1] - y_pred[0]) / (x_range[1] - x_range[0])
 
     # If there are enough outliers, fit a second line
     intersection_detected = False
@@ -45,7 +46,7 @@ def draw_ransac_lines(image, centroids, color=(255, 255, 0)):
             pt4 = (int(x_range[1]), int(y_pred2[1]))
             cv2.line(image, pt3, pt4, (150, 150, 0), 2)
 
-    return image, intersection_detected
+    return image, intersection_detected, slope
 
 
 def process_image_with_steering_overlay(frame, from_file=False):
@@ -60,9 +61,9 @@ def process_image_with_steering_overlay(frame, from_file=False):
     # Yellow mask (your tuned values)
     # lower_yellow = np.array([18, 93, 132])
     # upper_yellow = np.array([26, 255, 255])
-    lower_yellow = np.array([20, 26, 100])
+    lower_yellow = np.array([20, 74, 100])
     s_max = 82
-    upper_yellow = np.array([32, 255, 255])
+    upper_yellow = np.array([34, 255, 255])
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
     if from_file:
         cv2.imshow("Yello Mask", mask)
@@ -106,7 +107,7 @@ def process_image_with_steering_overlay(frame, from_file=False):
             height, width = frame.shape[:2]
             bottom_center = (width // 2, height - 1)
             cv2.line(annotated, bottom_center, (avg_x, avg_y), (0, 255, 0), 3)
-            annotated, intersection_suggested = draw_ransac_lines(annotated, centroids)
+            annotated, intersection_suggested, slope = draw_ransac_lines(annotated, centroids)
 
             # --- INTERSECTION DETECTION ---
         if (
@@ -143,11 +144,11 @@ def process_image_with_steering_overlay(frame, from_file=False):
         cv2.destroyAllWindows()
 
     if contours:
-        return annotated, (avg_x, avg_y), intersection_detected
+        return annotated, (avg_x, avg_y), slope, intersection_detected
     else:
-        return annotated, (-1, -1), intersection_detected
+        return annotated, (-1, -1), 0, intersection_detected
 
 
 if __name__ == "__main__":
-    ret = process_image_with_steering_overlay("data/road_17.jpg", True)
+    ret = process_image_with_steering_overlay("data/road_19.jpg", True)
     print(ret[1])

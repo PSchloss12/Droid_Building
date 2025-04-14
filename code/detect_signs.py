@@ -18,6 +18,7 @@ def initialize():
             "format": "RGB888",
         },  # Small but clear resolution, RGB for ML models
     )
+    time.sleep(1)
     picam2.configure(config)
     picam2.start()
     model = YOLO("yolo11n.tflite")
