@@ -7,7 +7,7 @@ import numpy as np
 
 def draw_ransac_lines(image, centroids, color=(255, 255, 0)):
     if len(centroids) < 2:
-        return image, False, 0  # not enough points
+        return image, False  # not enough points
 
     # Convert to numpy array
     points = np.array(centroids)
@@ -26,7 +26,7 @@ def draw_ransac_lines(image, centroids, color=(255, 255, 0)):
     pt1 = (int(x_range[0]), int(y_pred[0]))
     pt2 = (int(x_range[1]), int(y_pred[1]))
     cv2.line(image, pt1, pt2, color, 2)
-    slope = (y_pred[1] - y_pred[0]) / (x_range[1] - x_range[0])
+    middle_slope = (y_pred[1] - y_pred[0]) / (x_range[1] - x_range[0])
 
     # If there are enough outliers, fit a second line
     intersection_detected = False
@@ -46,7 +46,7 @@ def draw_ransac_lines(image, centroids, color=(255, 255, 0)):
             pt4 = (int(x_range[1]), int(y_pred2[1]))
             cv2.line(image, pt3, pt4, (150, 150, 0), 2)
 
-    return image, intersection_detected, slope
+    return image, intersection_detected
 
 
 def process_image_with_steering_overlay(frame, from_file=False):
@@ -107,7 +107,8 @@ def process_image_with_steering_overlay(frame, from_file=False):
             height, width = frame.shape[:2]
             bottom_center = (width // 2, height - 1)
             cv2.line(annotated, bottom_center, (avg_x, avg_y), (0, 255, 0), 3)
-            annotated, intersection_suggested, slope = draw_ransac_lines(annotated, centroids)
+            annotated, intersection_suggested = draw_ransac_lines(annotated, centroids)
+            steering_slope = (avg_y - bottom_center[1]) / (avg_x - bottom_center[0])
 
             # --- INTERSECTION DETECTION ---
         if (
@@ -144,7 +145,7 @@ def process_image_with_steering_overlay(frame, from_file=False):
         cv2.destroyAllWindows()
 
     if contours:
-        return annotated, (avg_x, avg_y), slope, intersection_detected
+        return annotated, (avg_x, avg_y), steering_slope, intersection_detected
     else:
         return annotated, (-1, -1), 0, intersection_detected
 

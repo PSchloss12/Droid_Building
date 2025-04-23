@@ -14,7 +14,7 @@ def initialize():
     picam2 = Picamera2()
     config = picam2.create_still_configuration(
         main={
-            "size": (640, 480),
+            "size": (480, 320),
             "format": "RGB888",
         },  # Small but clear resolution, RGB for ML models
     )

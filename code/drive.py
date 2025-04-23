@@ -14,13 +14,13 @@ def drive_distance(saber, speed=35, distance=1):
     saber.stop()  # Stop the robot after driving
 
 
-def drive_forward(saber, speed=35, duration=1):
+def drive_forward(saber, speed=35, duration=1, turn=0):
     """
     Drive the robot forward at a specified speed for a specified duration.
     """
     for i in range(int(duration * 100)):
-        saber.drive(speed, 0)  # Forward with no turning
-    stop_robot(saber)  # Stop after the duration
+        saber.drive(speed, turn)  # Forward with no turning
+    # stop_robot(saber)  # Stop after the duration
 
 
 def stop_robot(saber):

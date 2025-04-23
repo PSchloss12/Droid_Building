@@ -7,14 +7,16 @@ import numpy as np
 from detect_signs import initialize
 from add_lines import *
 from drive import *
-from autonomous import announce_sign, follow_sign, clean
+from autonomous import clean
+from handle_sign import announce_sign, follow_sign
 
 
 def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=True):
     """
     Returns the new steering angle unless a large enough sign is detected
     """
-    min_sign_area = 14500
+    min_sign_area = 9000
+    # min_sign_area = 0
 
     raw_frame = picam2.capture_array()
 
@@ -30,15 +32,16 @@ def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=Tru
         return
 
     # if is_intersection:
-    cv2.imshow("Annotated Steering Overlay", frame)
-    key = cv2.waitKey(1) & 0xFF
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    # cv2.imshow("Annotated Steering Overlay", frame)
+    # key = cv2.waitKey(1) & 0xFF
 
-    if False and detect_sign:
+    if detect_sign:
         results = model(raw_frame)
         largest_area = 0
         for result in results:
+            if len(result.boxes) > 1:
+                print("Warning: More than one sign detected. Ignoring all signs.")
+                continue
             for box in result.boxes:  # Get bounding boxes
                 x1, y1, x2, y2 = box.xyxy[0]
                 class_name = model.names[int(box.cls)]
@@ -60,6 +63,9 @@ def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=Tru
                     largest_area = area
                     largest_sign = class_name
         if largest_area < min_sign_area:
+            print(
+                f"largest sign: {largest_sign}, area: {largest_area}, min_sign_area: {min_sign_area}"
+            )
             largest_sign = None
         else:
             announce_sign(sound, largest_sign)
@@ -67,17 +73,16 @@ def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=Tru
     if display_img:
         screen.clear_screen("white")
         screen.display_bmp_image(frame, position=(0, 0))
-        # cv2.imshow("Annotated Steering Overlay", frame)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+        cv2.imshow("Annotated Steering Overlay", frame)
+        key = cv2.waitKey(1) & 0xFF
 
     if largest_sign is not None:
-        return largest_sign
-    x, y = steering_point
-    # print(frame.shape)
-    steering_angle = np.arctan2(y, x - frame.shape[1] // 2)
-    if abs(slope) <= 2:
-        steering_angle = 7 if slope > 0 else -7
+        return largest_sign.lower()
+
+    # x, y = steering_point
+    # steering_angle = np.arctan2(y, x - frame.shape[1] // 2)
+    if abs(slope) <= 3:
+        steering_angle = -10 if slope > 0 else 7
     else:
         steering_angle = 0
     # steering_angle = int(x - (frame.shape[1] // 2))
@@ -91,17 +96,19 @@ if __name__ == "__main__":
     screen = TFTDisplay()
     saber.set_ramping(15)
 
-    speed = 20
+    speed = 25
     turn_speed = 1
 
     try:
         turn = 0
         while 1:
             ret = take_picture(cam, screen, model, sound)
+            print(ret, type(ret))
             if ret is None:
                 print("end of road. exiting...")
                 break
             elif type(ret) == str:
+                print(f"Detected sign: {ret}")
                 follow_sign(saber, ret)
             else:
                 try:
@@ -111,7 +118,8 @@ if __name__ == "__main__":
                         f"Warning: Unable to cast ret ({ret}) to float. Ignoring this value."
                     )
                     turn = 0
-            drive_robot(saber, speed=speed, turn=turn)
+            # drive_robot(saber, speed=speed, turn=turn)
+            drive_forward(saber, speed=speed, duration=0.5, turn=turn)
             turn = 0
     except Exception as e:
         print(e)
