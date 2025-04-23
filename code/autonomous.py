@@ -154,7 +154,7 @@ if __name__ == "__main__":
             # if count % 10 == 0:
             if ready:
                 ready = False
-                show = False #count%100==0
+                show = False  # count%100==0
                 pic_thread = threading.Thread(
                     target=take_picture,
                     args=(result_queue, cam, screen, model, sound, True, show),
