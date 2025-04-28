@@ -136,7 +136,7 @@ def set_leds(lights, config):
     lights.send()
 
 
-if __name__ == "__main__":
+def main():
     try:
         sound = USB_SoundController()
         screen = TFTDisplay()
@@ -196,3 +196,5 @@ if __name__ == "__main__":
             lights.close()
         except Exception as e:
             print(f"Error during cleanup: {e}")
+if __name__ == "__main__":
+    main()
