@@ -62,29 +62,33 @@ thread_running = False  # Flag to track if pizazz is running
 def circle(sound, screen, lights):
     global thread_running
     thread_running = True
-    sleep_time = 0.2
+    sleep_time = 0.4
 
     clear(sound, screen, lights)
     try:
-        for i in range(3):
-            screen.draw_arrow(direction="up")
+        for i in range(5):
+            screen.draw_arrow(direction="down")
             sound.play_audio(sounds[1])
-            set_leds(lights, {0: 0.2, 1: 0.2, 2: 0.2, 3: 0.2})
+            set_leds(lights, {0: 0.2, 1: 0.2, 2: 0.2})
+            screen.clear_screen("black")
             screen.draw_arrow(direction="right")
             sleep(sleep_time)
-            set_leds(lights, {0: 0.4, 1: 0.4, 2: 0.4, 3: 0.4})
+            set_leds(lights, {0: 0.4, 1: 0.4, 2: 0.4})
             sleep(sleep_time)
-            set_leds(lights, {0: 0.6, 1: 0.6, 2: 0.6, 3: 0.6})
+            set_leds(lights, {0: 0.6, 1: 0.6, 2: 0.6})
+            screen.clear_screen("black")
             screen.draw_arrow(direction="up")
             sleep(sleep_time)
-            set_leds(lights, {0: 0.8, 1: 0.8, 2: 0.8, 3: 0.8})
+            set_leds(lights, {0: 0.8, 1: 0.8, 2: 0.8})
             sleep(sleep_time)
             set_leds(lights, {0: 1, 1: 1, 2: 1, 3: 1})
+            screen.clear_screen("black")
             screen.draw_arrow(direction="left")
             sleep(sleep_time)
             set_leds(lights, {i: 0})
             sleep(sleep_time)
-            screen.draw_arrow(direction="up")
+            screen.clear_screen("black")
+            screen.draw_arrow(direction="down")
             sleep(sleep_time * 2)
     except Exception as e:
         print(f"Error in pizazz: {e}")
@@ -99,7 +103,6 @@ def intruder_detected(sound, screen, lights):
     sleep_time = 0.2
 
     for i in range(3):
-        sound.play_audio(sounds[0])
         for i in range(3):
             set_leds(lights, all_on)
             screen.clear_screen("black")
@@ -143,25 +146,33 @@ if __name__ == "__main__":
 
         sound.play_text_to_speech("Begin circle patrol")
 
-        sleep(1)
+        sleep(2)
 
         Thread(target=circle, args=(sound, screen, lights), daemon=True).start()
         while thread_running:
             drive_robot(saber, speed=25, turn=15)
+        sleep(1)
         clear(sound, screen, lights)
         stop_robot(saber)
+        sleep(1)
 
         sound.play_text_to_speech("Intrusion detected!")
+        sleep(1)
         Thread(
             target=intruder_detected, args=(sound, screen, lights), daemon=True
         ).start()
+        sound.play_audio(sounds[0])
+        while thread_running:
+            pass
 
         sleep(1)
 
         sound.play_text_to_speech("Resuming patrol")
+        sleep(2)
         Thread(target=circle, args=(sound, screen, lights), daemon=True).start()
         while thread_running:
             drive_robot(saber, speed=25, turn=15)
+        sleep(1)
         clear(sound, screen, lights)
         stop_robot(saber)
 
