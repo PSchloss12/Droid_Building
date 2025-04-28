@@ -63,6 +63,11 @@ class TFTDisplay:
 
         # Run display initialization.
         self._initialize_display()
+        self.open = True
+
+    def is_open(self):
+        # Check if the display is open.
+        return self.open
 
     def _queue_worker(self):
         # Continuously process tasks from the queue
@@ -326,6 +331,7 @@ class TFTDisplay:
             t.join(timeout=5)
         self.spi.close()
         time.sleep(1)
+        self.open = False
         try:
             GPIO.cleanup([TFT_CS_PIN, TFT_RESET_PIN, TFT_DC_PIN])
         except Exception as e:
