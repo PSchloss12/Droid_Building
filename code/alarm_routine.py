@@ -8,6 +8,7 @@ import random
 from time import sleep, time
 from threading import Thread
 
+
 sounds = [
     "sounds/whiney.wav",
     "sounds/gallop.wav",
@@ -77,11 +78,11 @@ def circle(sound, screen, lights):
             sleep(sleep_time)
             set_leds(lights, {0: 0.6, 1: 0.6, 2: 0.6})
             screen.clear_screen("black")
-            screen.draw_arrow(direction="up")
+            screen.draw_arrow(direction="down")
             sleep(sleep_time)
             set_leds(lights, {0: 0.8, 1: 0.8, 2: 0.8})
             sleep(sleep_time)
-            set_leds(lights, {0: 1, 1: 1, 2: 1, 3: 1})
+            set_leds(lights, {0: 1, 1: 1, 2: 1,})
             screen.clear_screen("black")
             screen.draw_arrow(direction="left")
             sleep(sleep_time)
@@ -101,17 +102,20 @@ def intruder_detected(sound, screen, lights):
     global thread_running
     thread_running = True
     sleep_time = 0.2
-
-    for i in range(3):
-        for i in range(3):
-            set_leds(lights, all_on)
-            screen.clear_screen("black")
-            sleep(sleep_time)
-            screen.clear_screen("red")
-            sleep(sleep_time)
-            set_leds(lights, all_off)
-            screen.clear_screen("white")
-            sleep(sleep_time)
+    set_leds(lights, all_off)
+    for i in range(15):
+        set_leds(lights, all_on)
+        screen.clear_screen("black")
+        sleep(sleep_time)
+        screen.clear_screen("red")
+        set_leds(lights, all_off)
+        sleep(sleep_time)
+        set_leds(lights, all_on)
+        screen.clear_screen("white")
+        sleep(sleep_time)
+        set_leds(lights, all_off)
+        screen.clear_screen("green")
+        sleep(sleep_time)
 
     clear(sound, screen, lights)
     thread_running = False
@@ -122,7 +126,7 @@ def clear(sound, screen, lights):
         sound.stop_sound()
         if screen.is_open():  # Ensure the screen is open before clearing
             screen.clear_screen("black")
-        set_leds(lights, {i: 0 for i in range(9)})
+        set_leds(lights, all_off)
     except Exception as e:
         print(f"Error in clear: {e}")
 
@@ -141,8 +145,9 @@ if __name__ == "__main__":
         saber = Sabertooth()
         saber.set_ramping(15)
 
-        tick = time()
-        tock = tick
+        screen.display_bmp(images[3], position=(0, 0))
+        sound.play_audio(sounds[4])
+        sleep(2.5)
 
         sound.play_text_to_speech("Begin circle patrol")
 
@@ -154,18 +159,19 @@ if __name__ == "__main__":
         sleep(1)
         clear(sound, screen, lights)
         stop_robot(saber)
-        sleep(1)
+        sleep(0.5)
 
-        sound.play_text_to_speech("Intrusion detected!")
-        sleep(1)
+        sound.play_text_to_speech("Intruder detected!")
+        sleep(2)
         Thread(
             target=intruder_detected, args=(sound, screen, lights), daemon=True
         ).start()
-        sound.play_audio(sounds[0])
-        while thread_running:
-            pass
-
         sleep(1)
+        while thread_running:
+            sound.play_audio(sounds[0])
+            sleep(2)
+
+        sleep(0.1)
 
         sound.play_text_to_speech("Resuming patrol")
         sleep(2)
@@ -173,8 +179,12 @@ if __name__ == "__main__":
         while thread_running:
             drive_robot(saber, speed=25, turn=15)
         sleep(1)
-        clear(sound, screen, lights)
         stop_robot(saber)
+
+        screen.display_bmp(images[4], position=(0, 0))
+        sound.play_text_to_speech("Patrol complete")
+        sleep(2)
+        clear(sound, screen, lights)
 
     finally:
         try:

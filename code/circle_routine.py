@@ -7,6 +7,7 @@ from autonomous import clean
 import random
 from time import sleep, time
 from threading import Thread
+import robot_controller
 
 sounds = [
     "sounds/whiney.wav",

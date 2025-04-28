@@ -5,9 +5,11 @@
 ##########################################################################
 import pygame
 import time
-from Droid_Building.code.classes.sabertooth import Sabertooth
+from sabertooth import Sabertooth
 from ps5_controller import PS5_Controller
 
+
+start = False
 
 def move_robot(saber, control_request, direction):
     # Sends motor commands to the Sabertooth motor controller.
@@ -47,6 +49,7 @@ def main():
             if ps5.control_request["reqArrowUp"]:
                 print("This should call by function tied to Arrow Up")
                 direction *= -1
+                start = True
 
             # Move the robot if left joystick is moved
             if ps5.control_request["reqLeftJoyMade"]:
