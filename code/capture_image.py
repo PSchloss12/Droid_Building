@@ -34,7 +34,7 @@ def main():
         print(ex)
         help()
 
-    out_dir = "data/stop"
+    out_dir = "data/"
     base_name = sys.argv[1]
     extension = "jpg"
     image_number = get_next_image_number(directory=out_dir, base_name=base_name, extension=extension)

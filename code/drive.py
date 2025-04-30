@@ -32,6 +32,6 @@ def turn_robot(saber, direction, speed=45, duration=1):
         for i in range(int(duration * 75)):
             saber.drive(0, -speed)  # Turn left
     elif direction == "right":
-        for i in range(int(duration * 75)):
+        for i in range(int(duration * 80)):
             saber.drive(0, speed)  # Turn right
     stop_robot(saber)
