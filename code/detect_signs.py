@@ -21,8 +21,8 @@ def initialize():
     time.sleep(1)
     picam2.configure(config)
     picam2.start()
-    model = YOLO("4_27.tflite")
-    # model = YOLO("yolo11n.tflite")
+    model = YOLO("models/4_29.tflite")  # Load a model
+    # model = YOLO("models/yolo11n.tflite")  # Load a model
     # model = YOLO('best_float32_old.tflite')
     return picam2, model
 
@@ -115,34 +115,36 @@ def detect_sign_new(cam, model):
 
 if __name__ == "__main__":
     # Initialize Picamera2
-    # print("Configure camera...")
-    # picam2 = Picamera2()
-    # config = picam2.create_still_configuration(
-    #     main={"size": (640, 480), "format": "RGB888"},  # Small but clear resolution, RGB for ML models
-    #     lores={"size": (320, 240)},  # Optional low-res for faster preview if needed
-    #     display="lores"  # Use low-res for previewing (if using)
-    # )
-    # picam2.configure(config)
-    # picam2.start()
-    # # load model
-    # print('Loading YOLO model...')
-    # version = 'yolo11n.tflite'
-    # model = YOLO(version)
-    # print('Model loaded!')
-    cam, model = initialize()
-    while 1:
-        d_class = detect_sign_new(cam, model)
-        print(d_class)
-        # color_print('Analyzing picture',"cyan")
-        # frame = picam2.capture_array()
-        # results = model(frame)
-        # detected_classes = []
-        # for result in results:
-        #     for cls_id in result.boxes.cls:  # Get class indices
-        #         if model.names[int(cls_id)] not in detected_classes:
-        #             detected_classes.append(model.names[int(cls_id)])
-        # color = 'green' if len(detected_classes)>0 else 'red'
-        # print("Detected:", end=' ')
-        # color_print(detected_classes, color)
+    picam2, model = initialize()
+    frame = picam2.capture_array()
 
-        time.sleep(1)
+    print('model loaded successfully: ', model)
+    time.sleep(1)
+    print()
+    results = model(frame)
+    largest_area = 0
+    for result in results:
+        if len(result.boxes) > 1:
+            print("Warning: More than one sign detected. Ignoring all signs.")
+            continue
+        for box in result.boxes:  # Get bounding boxes
+            x1, y1, x2, y2 = box.xyxy[0]
+            class_name = model.names[int(box.cls)]
+            cv2.rectangle(
+                frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 0), 2
+            )
+            cv2.putText(
+                frame,
+                f"{class_name} {box.conf[0]:.2f}",
+                (int(x1), int(y1) - 10),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 0, 0),
+                2,
+            )
+            area = (x2 - x1) * (y2 - y1)
+            if area > largest_area:
+                largest_area = area
+                largest_sign = class_name
+    cv2.imshow("Annotated Steering Overlay", frame)
+    key = cv2.waitKey(0)

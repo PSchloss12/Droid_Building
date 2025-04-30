@@ -71,8 +71,8 @@ def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=Tru
             announce_sign(sound, largest_sign)
 
     if display_img:
-        screen.clear_screen("white")
-        screen.display_bmp_image(frame, position=(0, 0))
+        # screen.clear_screen("white")
+        # screen.display_bmp_image(frame, position=(0, 0))
         cv2.imshow("Annotated Steering Overlay", frame)
         key = cv2.waitKey(1) & 0xFF
 
