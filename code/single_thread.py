@@ -10,17 +10,36 @@ from drive import *
 from autonomous import clean
 from handle_sign import announce_sign, follow_sign
 
+def recenter_on_road(saber, picam2, turn_speed=1.5):
+    slope = 0
+    count = 0
+    while abs(slope) <= 3 and count < 3:
+        raw_frame = picam2.capture_array()
+        frame, steering_point, slope, is_intersection = process_image_with_steering_overlay(
+            raw_frame
+        )
+        cv2.imshow("Annotated Steering Overlay", frame)
+        key = cv2.waitKey(1) & 0xFF
+        # # key = cv2.waitKey(0)
+        time.sleep(1)
+
+        # turn = float(slope) * turn_speed *2
+        # drive_forward(saber, speed=speed, duration=1, turn=turn)
+        # drive_forward(saber, speed=speed*-1, duration=1, turn=turn)
+        drive_forward(saber, speed=20, duration=1, turn=1)
+        print(f"slope: {slope}, turn: {turn}")
 
 def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=True):
     """
     Returns the new steering angle unless a large enough sign is detected
     """
-    min_sign_area = 4000
+    min_sign_area = 12000
+    min_stop_sign_area = 16000
     # min_sign_area = 0
 
     raw_frame = picam2.capture_array()
 
-    largest_sign = None
+    largest_sign = ""
 
     frame, steering_point, slope, is_intersection = process_image_with_steering_overlay(
         raw_frame
@@ -62,13 +81,16 @@ def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=Tru
                 if area > largest_area:
                     largest_area = area
                     largest_sign = class_name
-        if largest_area < min_sign_area:
-            print(
-                f"largest sign: {largest_sign}, area: {largest_area}, min_sign_area: {min_sign_area}"
-            )
-            largest_sign = None
+        # NB: stop sign bounding boxes produced by the model are larger than the others
+        if largest_sign.lower == "stop" and largest_area < min_stop_sign_area:
+            largest_sign = ""
+        elif largest_sign.lower != "stop" and largest_area < min_sign_area:
+            largest_sign = ""
         else:
             announce_sign(sound, largest_sign)
+        print(
+            f"largest sign: {largest_sign}, area: {largest_area}, min_sign_area: {min_sign_area}"
+        )
 
     if display_img:
         # screen.clear_screen("white")
@@ -76,7 +98,7 @@ def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=Tru
         cv2.imshow("Annotated Steering Overlay", frame)
         key = cv2.waitKey(1) & 0xFF
 
-    if largest_sign is not None:
+    if largest_sign != "":
         return largest_sign.lower()
 
     # x, y = steering_point
@@ -97,19 +119,21 @@ if __name__ == "__main__":
     saber.set_ramping(15)
 
     speed = 25
-    turn_speed = 1
+    turn_speed = 1.2
 
     try:
         turn = 0
         while 1:
             ret = take_picture(cam, screen, model, sound)
-            print(ret, type(ret))
+            # print(ret, type(ret))
             if ret is None:
                 print("end of road. exiting...")
                 break
             elif type(ret) == str:
                 print(f"Detected sign: {ret}")
                 follow_sign(saber, ret)
+                # sound.play_text_to_speech(f"Recentering on road")
+                # recenter_on_road(saber, cam, turn_speed=turn_speed)
             else:
                 try:
                     turn = float(ret) * turn_speed  # Attempt to cast ret to a float
