@@ -1,9 +1,9 @@
 from tft_display import TFTDisplay
 from picamera2 import Picamera2
 import time
-import cv2
+# import cv2
 
-# screen = TFTDisplay()
+screen = TFTDisplay()
 
 try:
     picam2 = Picamera2()
@@ -21,15 +21,13 @@ try:
     # screen.clear_screen("black")
     # screen.display_bmp_image(img)
     # time.sleep(1)
-    cv2.imshow("img: ",img)
-    cv2.waitKey(0)
+    # cv2.imshow("img: ",img)
+    # cv2.waitKey(0)
     # print(img.size)
 
-    # screen.display_camera_feed(picam2)
+    screen.display_camera_feed(picam2)
 
 except IndexError:
     print("Error: No camera detected. Please check the connection and try again.")
-    screen.display_text("No camera detected", position=(10, 10), color="red")
 except Exception as e:
     print(f"Unexpected error: {e}")
-    screen.display_text("Error occurred", position=(10, 10), color="red")

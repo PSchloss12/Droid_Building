@@ -21,7 +21,8 @@ def initialize():
     time.sleep(1)
     picam2.configure(config)
     picam2.start()
-    model = YOLO("yolo11n.tflite")
+    model = YOLO("4_27.tflite")
+    # model = YOLO("yolo11n.tflite")
     # model = YOLO('best_float32_old.tflite')
     return picam2, model
 
