@@ -5,6 +5,7 @@ import sys
 import os
 import re
 
+
 def get_next_image_number(directory, base_name, extension="jpg"):
     pattern = re.compile(rf"{re.escape(base_name)}_(\d+)\.{extension}$")
 
@@ -20,34 +21,41 @@ def get_next_image_number(directory, base_name, extension="jpg"):
     next_number = max(numbers) + 1 if numbers else 0
     return next_number
 
+
 def help():
     print(f"python3 capture_image.py image_base_name num_images")
     exit()
 
+
 def main():
     if len(sys.argv) != 3:
         help()
-    
+
     try:
         num_images = int(sys.argv[2])
     except Exception as ex:
         print(ex)
         help()
 
-    out_dir = "data/"
+    out_dir = "data/left_angle/"
     base_name = sys.argv[1]
     extension = "jpg"
-    image_number = get_next_image_number(directory=out_dir, base_name=base_name, extension=extension)
+    image_number = get_next_image_number(
+        directory=out_dir, base_name=base_name, extension=extension
+    )
 
     # Initialize Picamera2
     picam2 = Picamera2()
     config = picam2.create_still_configuration(
-        main={"size": (480, 320), "format": "RGB888"},  # Small but clear resolution, RGB for ML models
+        main={
+            "size": (480, 320),
+            "format": "RGB888",
+        },  # Small but clear resolution, RGB for ML models
         lores={"size": (320, 240)},  # Optional low-res for faster preview if needed
-        display="lores"  # Use low-res for previewing (if using)
+        display="lores",  # Use low-res for previewing (if using)
     )
     picam2.configure(config)
-    
+
     # Start the camera
     picam2.start()
     time.sleep(1)  # Allow the camera to warm up
@@ -55,10 +63,11 @@ def main():
     for i in range(num_images):
         # Capture image
         picam2.capture_file(f"{out_dir}/{base_name}_{image_number+i}.{extension}")
-        time.sleep(0.3)
+        time.sleep(0.5)
 
     # Stop the camera
     picam2.stop()
+
 
 if __name__ == "__main__":
     main()
