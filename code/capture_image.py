@@ -23,6 +23,7 @@ def get_next_image_number(directory, base_name, extension="jpg"):
 
 
 def help():
+    
     print(f"python3 capture_image.py image_base_name num_images")
     exit()
 
