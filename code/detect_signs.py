@@ -23,7 +23,9 @@ def initialize():
     time.sleep(1)
     picam2.configure(config)
     picam2.start()
-    model = YOLO("models/best.pt")  # Load a model
+    
+    model = YOLO("models/christian-5.pt")  # Load a model
+    # model = YOLO("models/best.pt")  # Load a model
     # model = YOLO("models/4_29.tflite")  # Load a model
     # model = YOLO("models/yolo11n.tflite")  # Load a model
     # model = YOLO('best_float32_old.tflite')

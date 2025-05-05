@@ -23,7 +23,7 @@ def get_next_image_number(directory, base_name, extension="jpg"):
 
 
 def help():
-    
+
     print(f"python3 capture_image.py image_base_name num_images")
     exit()
 
@@ -49,7 +49,8 @@ def main():
     picam2 = Picamera2()
     config = picam2.create_still_configuration(
         main={
-            "size": (480, 320),
+            "size": (1020, 640), 
+            # "size": (480, 320), 
             "format": "RGB888",
         },  # Small but clear resolution, RGB for ML models
         lores={"size": (320, 240)},  # Optional low-res for faster preview if needed
