@@ -1,0 +1,25 @@
+description: Ultralytics YOLO11n model trained on /content/drive/MyDrive/School/Droid
+  Building/data/Droid Signs.combined.yolov11/data.yaml
+author: Ultralytics
+date: '2025-05-05T22:24:00.394224'
+version: 8.3.127
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: detect
+batch: 1
+imgsz:
+- 480
+- 480
+names:
+  0: Forward
+  1: Left
+  2: Right
+  3: Stop
+args:
+  batch: 1
+  fraction: 1.0
+  half: false
+  int8: false
+  nms: false
+channels: 3

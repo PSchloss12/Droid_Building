@@ -20,6 +20,7 @@ sounds = [
     "sounds/Boss Battle.mp3",
     "sounds/old_zelda_theme.wav",
     "sounds/Small Item Catch.mp3",
+    "sounds/omnisis_gate.wav",
 ]
 
 images = [
@@ -28,6 +29,7 @@ images = [
     "imgs/sentlogo.png",
     "imgs/Shieldip2.png",
     "imgs/smolwill.png",
+    "imgs/alarm.jpg",
 ]
 
 all_on = {
@@ -61,75 +63,61 @@ all_off = {
     12: 0,
 }
 
+led_order = [15, 14, 13, 17, 16, 3, 2, 1, 19, 18, 10, 11, 12]
+
 
 thread_running = False  # Flag to track if pizazz is running
 
 
-def circle(sound, screen, lights):
+def fight(sound, screen, lights):
     global thread_running
     thread_running = True
-    sleep_time = 0.4
-
+    sleep_time = 0.2
     clear(sound, screen, lights)
     try:
-        for i in range(5):
-            screen.draw_arrow(direction="down")
-            sound.play_audio(sounds[1])
-            set_leds(lights, {0: 0.2, 1: 0.2, 2: 0.2})
-            screen.clear_screen("black")
-            screen.draw_arrow(direction="right")
-            sleep(sleep_time)
-            set_leds(lights, {0: 0.4, 1: 0.4, 2: 0.4})
-            sleep(sleep_time)
-            set_leds(lights, {0: 0.6, 1: 0.6, 2: 0.6})
-            screen.clear_screen("black")
-            screen.draw_arrow(direction="down")
-            sleep(sleep_time)
-            set_leds(lights, {0: 0.8, 1: 0.8, 2: 0.8})
-            sleep(sleep_time)
-            set_leds(
-                lights,
-                {
-                    0: 1,
-                    1: 1,
-                    2: 1,
-                },
-            )
-            screen.clear_screen("black")
-            screen.draw_arrow(direction="left")
-            sleep(sleep_time)
-            set_leds(lights, {i: 0})
-            sleep(sleep_time)
-            screen.clear_screen("black")
-            screen.draw_arrow(direction="down")
-            sleep(sleep_time * 2)
+        sound.play_audio(sounds[6])
+        for i in range(3):
+            screen.display_bmp(images[i], position=(0, 0))
+            for num in led_order:
+                if num == 3:
+                    set_leds(lights, {num: 1, 6: 1, 9: 1})
+                    sleep(sleep_time)
+                    set_leds(lights, {num: 0, 6: 0, 9: 0})
+                elif num == 2:
+                    set_leds(lights, {num: 1, 5: 1, 8: 1})
+                    sleep(sleep_time)
+                    set_leds(lights, {num: 0, 5: 0, 8: 0})
+                elif num == 1:
+                    set_leds(lights, {num: 1, 4: 1, 7: 1})
+                    sleep(sleep_time)
+                    set_leds(lights, {num: 0, 4: 0, 7: 0})
+                else:
+                    set_leds(lights, {num: 1})
+                    sleep(sleep_time)
+                    set_leds(lights, {num: 0})
+                sleep(sleep_time)
+
     except Exception as e:
-        print(f"Error in pizazz: {e}")
-        sleep(0.5)
+        print(f"Error in fight: {e}")
+        sleep(0.1)
         clear(sound, screen, lights)
     thread_running = False
 
 
-def intruder_detected(sound, screen, lights):
+def sound_alarm(sound, screen, lights):
     global thread_running
     thread_running = True
     sleep_time = 0.2
+    screen.display_bmp(images[5], position=(0, 0))
     set_leds(lights, all_off)
-    for i in range(15):
+    sound.play_audio(sounds[5])
+    tick = time()
+    while time() - tick < 6:
         set_leds(lights, all_on)
-        screen.clear_screen("black")
-        sleep(sleep_time)
-        screen.clear_screen("red")
+        time.sleep(sleep_time)
         set_leds(lights, all_off)
-        sleep(sleep_time)
-        set_leds(lights, all_on)
-        screen.clear_screen("white")
-        sleep(sleep_time)
-        set_leds(lights, all_off)
-        screen.clear_screen("green")
-        sleep(sleep_time)
-
-    clear(sound, screen, lights)
+    time.sleep(sleep_time)
+    set_leds(lights, all_on)
     thread_running = False
 
 
@@ -147,10 +135,23 @@ def set_leds(lights, config):
     lights.set_leds(config)
     lights.send()
 
-def open_doors():
+
+def open_door_instant(servo):
+    servo.move_to(90)
+
+
+def open_door(servo):
     pass
 
-def close_doors(lights):
+
+def close_doors(servo1, servo2):
+    global thread_running
+    thread_running = True
+    for i in range(90):
+        servo1.move_to(90 - i)
+        servo2.move_to(90 - i)
+        sleep(0.01)
+    thread_running = False
 
 
 def main():
@@ -164,45 +165,34 @@ def main():
         saber = Sabertooth()
         saber.set_ramping(15)
 
+        open_door_instant(left_servo)
+        open_door_instant(right_servo)
         screen.display_bmp(images[3], position=(0, 0))
-        sound.play_audio(sounds[4])
-        sleep(2.5)
-
-        sound.play_text_to_speech("Begin circle patrol")
-
+        sleep(2)
+        sound.play_text_to_speech("Prepare for battle!")
         sleep(2)
 
-        Thread(target=circle, args=(sound, screen, lights), daemon=True).start()
+        sound.play_text_to_speech("Lock the doors!")
+        sleep(2)
+        Thread(target=close_doors, args=(left_servo, right_servo), daemon=True).start()
+        sound.play_audio(sounds[9])
+        tick = time()
+        while (time() - tick < 6) and thread_running:
+            sleep(0.1)
+
+        sound.play_text_to_speech("Sound the alarm!")
+        sleep(2)
+        Thread(target=sound_alarm, args=(sound, screen, lights), daemon=True).start()
         while thread_running:
-            drive_robot(saber, speed=25, turn=15)
-        sleep(1)
-        clear(sound, screen, lights)
-        stop_robot(saber)
-        sleep(0.5)
+            drive_forward(saber, speed=30, duration=2)
+            sleep(0.2)
+            drive_forward(saber, speed=-30, duration=2)
+            sleep(0.2)
 
-        sound.play_text_to_speech("Intruder detected!")
-        sleep(2)
-        Thread(
-            target=intruder_detected, args=(sound, screen, lights), daemon=True
-        ).start()
-        sleep(1)
+        Thread(target=fight, args=(sound, screen, lights), daemon=True).start()
         while thread_running:
-            sound.play_audio(sounds[0])
-            sleep(2)
+            sleep(0.5)
 
-        sleep(0.1)
-
-        sound.play_text_to_speech("Resuming patrol")
-        sleep(2)
-        Thread(target=circle, args=(sound, screen, lights), daemon=True).start()
-        while thread_running:
-            drive_robot(saber, speed=25, turn=15)
-        sleep(1)
-        stop_robot(saber)
-
-        screen.display_bmp(images[4], position=(0, 0))
-        sound.play_text_to_speech("Patrol complete")
-        sleep(2)
         clear(sound, screen, lights)
 
     finally:
