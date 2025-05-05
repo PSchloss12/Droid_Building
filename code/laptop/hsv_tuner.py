@@ -105,4 +105,4 @@ def hsv_tuner():
 
 if __name__ == "__main__":
     # hsv_tuner()
-    hsv_tuner_image("../data/road_18.jpg")
+    hsv_tuner_image("../data/grass_0.jpg")

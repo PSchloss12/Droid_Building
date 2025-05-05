@@ -10,6 +10,21 @@ from drive import *
 from autonomous import clean
 from handle_sign import announce_sign, follow_sign
 
+def is_on_grass(cam):
+    frame = cam.capture_array()
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    lower_green = np.array([35, 100, 130])
+    upper_green = np.array([60, 155, 255])
+    mask = cv2.inRange(hsv, lower_green, upper_green)
+    total_pixels = mask.size
+    green_pixels = cv2.countNonZero(mask)
+    print(f"Green pixels/Total pixels: {total_pixels}/{green_pixels}, {100*green_pixels/total_pixels:.2f}")
+    if green_pixels > 0.02 * total_pixels:
+        print(f"Detected grass with {green_pixels} green pixels")
+        return True
+    else:
+        return False
+
 def recenter_on_road(saber, picam2, turn_speed=1.5):
     slope = 0
     count = 0
@@ -33,8 +48,8 @@ def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=Tru
     """
     Returns the new steering angle unless a large enough sign is detected
     """
-    min_sign_area = 12000
-    min_stop_sign_area = 16000
+    min_sign_area = 13000
+    min_stop_sign_area = 18000
     # min_sign_area = 0
 
     raw_frame = picam2.capture_array()
@@ -123,12 +138,16 @@ if __name__ == "__main__":
 
     try:
         turn = 0
+        speed = 25
         while 1:
             ret = take_picture(cam, screen, model, sound)
             # print(ret, type(ret))
             if ret is None:
-                print("end of road. exiting...")
-                break
+                if not is_on_grass(cam):
+                    print("end of road. exiting...")
+                    break
+                else:
+                    turn_robot(saber, "left", duration=0.3)
             elif type(ret) == str:
                 print(f"Detected sign: {ret}")
                 follow_sign(saber, ret)
