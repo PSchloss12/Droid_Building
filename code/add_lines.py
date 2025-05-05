@@ -108,7 +108,6 @@ def process_image_with_steering_overlay(frame, from_file=False):
             bottom_center = (width // 2, height - 1)
             cv2.line(annotated, bottom_center, (avg_x, avg_y), (0, 255, 0), 3)
             annotated, intersection_suggested = draw_ransac_lines(annotated, centroids)
-            print(bottom_center, (avg_x, avg_y))
             try:
                 steering_slope = (avg_y - bottom_center[1]) / (avg_x - (bottom_center[0]+50))
             except ZeroDivisionError:

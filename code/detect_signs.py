@@ -14,14 +14,16 @@ def initialize():
     picam2 = Picamera2()
     config = picam2.create_still_configuration(
         main={
-            "size": (480, 320),
+            # "size": (480, 320),
+            "size": (1020, 320),
             "format": "RGB888",
         },  # Small but clear resolution, RGB for ML models
     )
     time.sleep(1)
     picam2.configure(config)
     picam2.start()
-    model = YOLO("models/4_29.tflite")  # Load a model
+    model = YOLO("models/best.pt")  # Load a model
+    # model = YOLO("models/4_29.tflite")  # Load a model
     # model = YOLO("models/yolo11n.tflite")  # Load a model
     # model = YOLO('best_float32_old.tflite')
     return picam2, model
@@ -118,7 +120,7 @@ if __name__ == "__main__":
     picam2, model = initialize()
     frame = picam2.capture_array()
 
-    print('model loaded successfully: ', model)
+    print('model loaded successfully')
     time.sleep(1)
     print()
     results = model(frame)
