@@ -37,7 +37,7 @@ def main():
         print(ex)
         help()
 
-    out_dir = "data/left_angle/"
+    out_dir = "data/right_angle/"
     base_name = sys.argv[1]
     extension = "jpg"
     image_number = get_next_image_number(
