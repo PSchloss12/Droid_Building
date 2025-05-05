@@ -49,7 +49,7 @@ def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=Tru
     Returns the new steering angle unless a large enough sign is detected
     """
     min_sign_area = 13000
-    min_stop_sign_area = 18000
+    min_stop_sign_area = 16000
     # min_sign_area = 0
 
     raw_frame = picam2.capture_array()

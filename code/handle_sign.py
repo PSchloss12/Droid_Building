@@ -29,7 +29,7 @@ def follow_sign(saber, sign):
     sign = sign.lower()
     if sign == "stop":
         stop_robot(saber)
-        time.sleep(2)
+        time.sleep(10)
         drive_forward(saber, duration=2)  # Move forward for 2 seconds before stopping
     elif sign == "left":
         drive_forward(saber, duration=1.3)  # Move forward for 2 seconds before turning
