@@ -114,9 +114,9 @@ def sound_alarm(sound, screen, lights):
     tick = time()
     while time() - tick < 6:
         set_leds(lights, all_on)
-        time.sleep(sleep_time)
+        sleep(sleep_time)
         set_leds(lights, all_off)
-    time.sleep(sleep_time)
+    sleep(sleep_time)
     set_leds(lights, all_on)
     thread_running = False
 
@@ -135,21 +135,15 @@ def set_leds(lights, config):
     lights.set_leds(config)
     lights.send()
 
-
-def open_door_instant(servo):
-    servo.move_to(90)
-
-
 def open_door(servo):
     pass
 
-
-def close_doors(servo1, servo2):
+def close_doors(left_servo, right_servo):
     global thread_running
     thread_running = True
     for i in range(90):
-        servo1.move_to(90 - i)
-        servo2.move_to(90 - i)
+        left_servo.move_to(90 - i)
+        right_servo.move_to(i)
         sleep(0.01)
     thread_running = False
 
@@ -164,9 +158,10 @@ def main():
         set_leds(lights, {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0})
         saber = Sabertooth()
         saber.set_ramping(15)
+        sleep(1)
 
-        open_door_instant(left_servo)
-        open_door_instant(right_servo)
+        left_servo.move_to(0)
+        right_servo.move_to(90)
         screen.display_bmp(images[3], position=(0, 0))
         sleep(2)
         sound.play_text_to_speech("Prepare for battle!")

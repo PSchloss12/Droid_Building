@@ -94,13 +94,22 @@ class Servo:
 if __name__ == "__main__":
     import sys
     GPIO.setmode(GPIO.BCM)
-    servo = Servo()
+    servo = Servo(20)
+    servo2 = Servo(21)
     try:
         # Rapidly send a sequence of commands
-        for angle in [0, 180, 0, 180, 90, 0, 90, 45, 0, 45, 90, 135, 180, 0]:
-            print(f"Enqueuing move to {angle}°")
-            servo.move_to(angle)
-            time.sleep(0.05)  # commands arriving rapidly
+        # for angle in [0, 180, 0, 180, 90, 0, 90, 45, 0, 45, 90, 135, 180, 0]:
+        #     print(f"Enqueuing move to {angle}°")
+        #     servo.move_to(angle)
+        #     servo2.move_to(angle)
+        #     time.sleep(0.05)  # commands arriving rapidly
+        for i in range(5):
+            servo.move_to(0)
+            servo2.move_to(90)
+            time.sleep(0.1)
+            servo.move_to(90)
+            servo2.move_to(0)
+            time.sleep(0.1)
         time.sleep(5)
     except KeyboardInterrupt:
         print("Test interrupted.")
