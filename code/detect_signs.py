@@ -24,9 +24,9 @@ def initialize():
     picam2.configure(config)
     picam2.start()
     
-    model = YOLO("models/christian-5.pt")  # Load a model
+    # model = YOLO("models/christian-5.pt")  # Load a model
     # model = YOLO("models/best.pt")  # Load a model
-    # model = YOLO("models/5_5.pt")  # Load a model
+    model = YOLO("models/5_5.pt")  # Load a model
     # model = YOLO("models/yolo11n.tflite")  # Load a model
     # model = YOLO('best_float32_old.tflite')
     return picam2, model
@@ -144,19 +144,18 @@ def crop_reprocess(cam, model):
 
     for result in results:
         for box in result.boxes:  # Get bounding boxes
-            print(box.xyxy[0])
             x1, y1, x2, y2 = box.xyxy[0]
-            break
-        cropped_frame = frame[int(y1):int(y2), int(x1):int(x2)]  # Crop to the largest bounding box
-        cropped_results = model(cropped_frame)  # Process the cropped image
-        return cropped_frame, cropped_results
-    else:
-        return None, None
+            cropped_frame = frame[int(y1):int(y2), int(x1):int(x2)]  # Crop to the largest bounding box
+            cropped_results = model(cropped_frame)  # Process the cropped image
+            return cropped_frame, cropped_results
+    return frame, None
 
 if __name__ == "__main__":
     # Initialize Picamera2
     import numpy as np
     picam2, model = initialize()
+    print("Loading second model")
+    crop_model = YOLO("models/best-6.pt")  # Load a model
 
     print('model loaded successfully')
     time.sleep(1)
@@ -196,14 +195,18 @@ if __name__ == "__main__":
                     largest_sign = class_name
         if class_name.lower() == "right":
             print("Detected right sign, cropping")
-            frame, results = crop_reprocess(picam2, model)
-            for result in results:
-                for box in result.boxes:
-                    if box:
-                        class_name = model.names[int(box.cls)]
-                        print("Secondary class: ", class_name)
-                        break
+            frame, results = crop_reprocess(picam2, crop_model)
+            if not results or len(results)==0:
+                print("No results found in cropped image")
+            else:
+                for result in results:
+                    for box in result.boxes:
+                        if box:
+                            class_name = model.names[int(box.cls)]
+                            print("Secondary class: ", class_name)
+                            break
         cv2.imshow("Annotated Steering Overlay", frame)
-        key = cv2.waitKey(1) & 0xFF
+        # key = cv2.waitKey(1) & 0xFF
+        key = cv2.waitKey(0)
         if key == ord("q"):
             break
