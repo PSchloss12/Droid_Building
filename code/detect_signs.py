@@ -147,7 +147,11 @@ def crop_reprocess(cam, model):
             x1, y1, x2, y2 = box.xyxy[0]
             cropped_frame = frame[int(y1):int(y2), int(x1):int(x2)]  # Crop to the largest bounding box
             cropped_results = model(cropped_frame)  # Process the cropped image
-            return cropped_frame, cropped_results
+            for result in results:
+                for box in result.boxes:
+                    if box:
+                        class_name = model.names[int(box.cls)]
+                        return cropped_frame, class_name
     return frame, None
 
 if __name__ == "__main__":

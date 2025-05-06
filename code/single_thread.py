@@ -4,7 +4,7 @@ from led_controller import LEDController
 from tft_display import TFTDisplay
 import threading, cv2, time, queue
 import numpy as np
-from detect_signs import initialize
+from detect_signs import initialize, crop_reprocess
 from add_lines import *
 from drive import *
 from autonomous import clean
@@ -68,7 +68,7 @@ def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=Tru
     Returns the new steering angle unless a large enough sign is detected
     """
     min_sign_area = 13000
-    min_stop_sign_area = 16000
+    min_stop_sign_area = 30000
     # min_sign_area = 0
 
     raw_frame = picam2.capture_array()
@@ -146,6 +146,8 @@ def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=Tru
 
 
 if __name__ == "__main__":
+    from ultralytics import YOLO
+    crop_model = YOLO("models/best-6.pt")
     cam, model = initialize()
     sound = USB_SoundController()
     saber = Sabertooth()
@@ -169,7 +171,8 @@ if __name__ == "__main__":
                     turn_robot(saber, "left", duration=0.3)
             elif type(ret) == str:
                 print(f"Detected sign: {ret}")
-                if ret == "left":
+                if ret.lower() == "right":
+                    frame, ret = crop_reprocess(cam, crop_model)
                 follow_sign(saber, ret)
                 # sound.play_text_to_speech(f"Recentering on road")
                 # recenter_on_road(saber, cam, turn_speed=turn_speed)

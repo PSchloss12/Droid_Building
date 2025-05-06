@@ -156,7 +156,7 @@ def close_doors(left_servo, right_servo):
     thread_running = True
     print("Closing doors")
     for i in range(90):
-        if i % 10 == 0:
+        if i % 5 == 0:
             left_servo.move_to(i)
             right_servo.move_to(90-i)
             sleep(0.2)

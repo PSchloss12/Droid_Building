@@ -35,3 +35,23 @@ def turn_robot(saber, direction, speed=45, duration=1):
         for i in range(int(duration * 85)):
             saber.drive(0, speed)  # Turn right
     stop_robot(saber)
+
+if __name__ == "__main__":
+    import time
+    from sabertooth import Sabertooth
+    print("Initializing Sabertooth...")
+    
+    saber = Sabertooth()
+    saber.set_ramping(15)
+    time.sleep(1)
+    print("Starting robot movement...")
+    drive_forward(saber, speed=35, duration=2)
+    print("Turning left...")
+    turn_robot(saber, "left", speed=45, duration=1)
+    print("Driving forward...")
+    drive_distance(saber, speed=35, distance=1)
+    print("Stopping robot...")
+    stop_robot(saber)
+
+    saber.close()
+    print("Robot movement completed.")
