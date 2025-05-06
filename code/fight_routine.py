@@ -148,8 +148,18 @@ def set_leds(lights, config):
     lights.set_leds(config)
     lights.send()
 
-def open_door(servo):
-    pass
+def open_doors(left_servo, right_servo):
+    global thread_running
+    thread_running = True
+    for i in range(90, 0, -1):
+        if i % 5 == 0:
+            left_servo.move_to(i)
+            right_servo.move_to(90-i)
+            sleep(0.3)
+
+    right_servo.move_to(90)
+    left_servo.move_to(0)
+    thread_running = False
 
 def close_doors(left_servo, right_servo):
     global thread_running
@@ -159,7 +169,7 @@ def close_doors(left_servo, right_servo):
         if i % 5 == 0:
             left_servo.move_to(i)
             right_servo.move_to(90-i)
-            sleep(0.2)
+            sleep(0.3)
 
     right_servo.move_to(0)
     left_servo.move_to(90)
@@ -204,11 +214,20 @@ def main():
         Thread(target=fight, args=(sound, screen, lights), daemon=True).start()
         count = 0
         while thread_running:
-            if count < 30:
-                turn_robot(saber, "left", speed=30, duration=0.5)
+            if count < 10:
+                turn_robot(saber, "left", speed=40, duration=0.5)
             else:
-                turn_robot(saber, "right", speed=30, duration=0.5)
+                turn_robot(saber, "right", speed=40, duration=0.5)
+            count += 1
 
+        sound.play_text_to_speech("The enemy has been routed!")
+        sleep(2)
+        sound.play_audio(sounds[4])
+        sleep(2)
+        door_thread = Thread(target=open_doors, args=(left_servo, right_servo), daemon=True)
+        door_thread.start()
+        sound.play_audio(sounds[9])
+        door_thread.join()
         clear(sound, screen, lights)
 
     finally:
