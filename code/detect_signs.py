@@ -145,13 +145,27 @@ def crop_reprocess(cam, model):
     for result in results:
         for box in result.boxes:  # Get bounding boxes
             x1, y1, x2, y2 = box.xyxy[0]
+            og_class_name = model.names[int(box.cls)]
             cropped_frame = frame[int(y1):int(y2), int(x1):int(x2)]  # Crop to the largest bounding box
             cropped_results = model(cropped_frame)  # Process the cropped image
-            for result in results:
-                for box in result.boxes:
-                    if box:
-                        class_name = model.names[int(box.cls)]
-                        return cropped_frame, class_name
+            for r in cropped_results:
+                if len(r.boxes) >= 1:
+                    for box in r.boxes:
+                        if box:
+                            cv2.rectangle(cropped_frame, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
+                            cv2.putText(
+                                cropped_frame,
+                                f"{model.names[int(box.cls)]} {box.conf[0]:.2f}",
+                                (int(x1), int(y1) - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                0.5,
+                                (255, 0, 0),
+                                2,
+                            )
+                            class_name = model.names[int(box.cls)]
+                            return cropped_frame, class_name
+            if og_class_name:
+                return frame, og_class_name
     return frame, None
 
 if __name__ == "__main__":
@@ -199,18 +213,9 @@ if __name__ == "__main__":
                     largest_sign = class_name
         if class_name.lower() == "right":
             print("Detected right sign, cropping")
-            frame, results = crop_reprocess(picam2, crop_model)
-            if not results or len(results)==0:
-                print("No results found in cropped image")
-            else:
-                for result in results:
-                    for box in result.boxes:
-                        if box:
-                            class_name = model.names[int(box.cls)]
-                            print("Secondary class: ", class_name)
-                            break
+            frame, sign = crop_reprocess(picam2, crop_model)
         cv2.imshow("Annotated Steering Overlay", frame)
-        # key = cv2.waitKey(1) & 0xFF
-        key = cv2.waitKey(0)
+        key = cv2.waitKey(1) & 0xFF
+        # key = cv2.waitKey(0)
         if key == ord("q"):
             break
