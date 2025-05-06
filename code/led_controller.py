@@ -158,32 +158,40 @@ if __name__ == '__main__':
     
     try:
         # Test 1: Queue set_led for LED 0 at 50% brightness then send update.
-        print("Test 1: Queue set_led for LED 0 to 50% brightness and send update.")
-        controller.set_led(0, 0.5)
-        controller.send()
-        time.sleep(1)  # Allow time for processing
+        # print("Test 1: Queue set_led for LED 0 to 50% brightness and send update.")
+        # controller.set_led(0, 0.5)
+        # controller.send()
+        # time.sleep(1)  # Allow time for processing
         
-        # Test 2: Queue set_leds for LEDs 1, 2, and 3 then send update.
-        print("Test 2: Queue set_leds for LEDs 1, 2, and 3 to 100%, 75%, and 25% brightness and send update.")
-        controller.set_leds({0: 1, 1: 0, 2: 0.25, 3: 0, 4: 1})
-        controller.send()
-        time.sleep(1)
+        # # Test 2: Queue set_leds for LEDs 1, 2, and 3 then send update.
+        # print("Test 2: Queue set_leds for LEDs 1, 2, and 3 to 100%, 75%, and 25% brightness and send update.")
+        # controller.set_leds({0: 1, 1: 0, 2: 0.25, 3: 0, 4: 1})
+        # controller.send()
+        # time.sleep(1)
         
-        x_count = 1
-        while x_count < 100:
-            onOff = random.randint(0,1)
-            controller.set_led(0,onOff)
-            onOff = random.randint(0,1)
-            controller.set_led(1,onOff)
-            onOff = random.randint(0,1)
-            controller.set_led(2,onOff)
-            onOff = random.randint(0,1)
-            controller.set_led(3,onOff)
-            onOff = random.randint(0,1)
-            controller.set_led(4,onOff)
+        # x_count = 1
+        # while x_count < 100:
+        #     onOff = random.randint(0,1)
+        #     controller.set_led(0,onOff)
+        #     onOff = random.randint(0,1)
+        #     controller.set_led(1,onOff)
+        #     onOff = random.randint(0,1)
+        #     controller.set_led(2,onOff)
+        #     onOff = random.randint(0,1)
+        #     controller.set_led(3,onOff)
+        #     onOff = random.randint(0,1)
+        #     controller.set_led(4,onOff)
+        #     controller.send()
+        #     x_count = x_count + 1
+        #     time.sleep(.2)
+
+        for i in range(20):
+            controller.set_led(i, 1)
             controller.send()
-            x_count = x_count + 1
-            time.sleep(.2)
+            time.sleep(1)
+            controller.set_led(i, 0)
+            controller.send()
+            time.sleep(0.1)
             
     finally:
         controller.close()

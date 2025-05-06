@@ -110,9 +110,8 @@ class USB_SoundController:
         # voice_command = f"(voice_us_slt_hts)"
         # subprocess.call(f'echo "{voice_command}" | festival --pipe', shell=True)
         # Generate TTS audio into a temporary file using text2wave.
-        voice_command = "(voice_us1_mbrola)"
         temp_wav = "temp_tts.wav"
-        command = f'echo "{voice_command} {text}" | text2wave -o {temp_wav}'
+        command = f'echo "{text}" | text2wave -o {temp_wav}'
         ret = subprocess.call(command, shell=True)
         if ret == 0 and os.path.exists(temp_wav):
             self._play_wav(temp_wav)

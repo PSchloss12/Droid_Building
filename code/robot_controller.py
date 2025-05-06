@@ -7,7 +7,7 @@ import pygame
 import time
 from sabertooth import Sabertooth
 from ps5_controller import PS5_Controller
-import alarm_routine
+# import alarm_routine
 
 
 start = False
@@ -50,7 +50,7 @@ def main():
             if ps5.control_request["reqArrowUp"]:
                 print("This should call by function tied to Arrow Up")
                 direction *= -1
-                alarm_routine.main()
+                # alarm_routine.main()
                 
 
             # Move the robot if left joystick is moved

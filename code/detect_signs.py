@@ -24,9 +24,9 @@ def initialize():
     picam2.configure(config)
     picam2.start()
     
-    # model = YOLO("models/christian-5.pt")  # Load a model
-    model = YOLO("models/best.pt")  # Load a model
-    # model = YOLO("models/4_29.tflite")  # Load a model
+    model = YOLO("models/christian-5.pt")  # Load a model
+    # model = YOLO("models/best.pt")  # Load a model
+    # model = YOLO("models/5_5.pt")  # Load a model
     # model = YOLO("models/yolo11n.tflite")  # Load a model
     # model = YOLO('best_float32_old.tflite')
     return picam2, model
@@ -117,9 +117,45 @@ def detect_sign_new(cam, model):
     color_print([sign] if sign else [], color)
     return (str(sign), area, frame) if sign else ("", 0, None)
 
+def check_right_for_grass(frame):
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    lower_green = np.array([35, 100, 130])
+    upper_green = np.array([60, 155, 255])
+    height, width = frame.shape[:2]
+    right_region = frame[:, 2 * width // 3:]  # Focus on the right third of the frame
+    mask = cv2.inRange(hsv, lower_green, upper_green)
+    right_mask = mask[:, 2 * width // 3:]  # Apply the mask to the right region
+
+    total_pixels = right_mask.size
+    green_pixels = cv2.countNonZero(right_mask)
+
+    print(f"Detected {green_pixels/total_pixels} green pixels")
+    if green_pixels > 0.2 * total_pixels:  # Adjust threshold as needed
+        return True
+    else:
+        return False
+
+def crop_reprocess(cam, model):
+    frame = cam.capture_array()
+    results = model(frame)
+
+    largest_box = None
+    largest_area = 0
+
+    for result in results:
+        for box in result.boxes:  # Get bounding boxes
+            print(box.xyxy[0])
+            x1, y1, x2, y2 = box.xyxy[0]
+            break
+        cropped_frame = frame[int(y1):int(y2), int(x1):int(x2)]  # Crop to the largest bounding box
+        cropped_results = model(cropped_frame)  # Process the cropped image
+        return cropped_frame, cropped_results
+    else:
+        return None, None
 
 if __name__ == "__main__":
     # Initialize Picamera2
+    import numpy as np
     picam2, model = initialize()
 
     print('model loaded successfully')
@@ -128,8 +164,13 @@ if __name__ == "__main__":
 
     while True:
         frame = picam2.capture_array()
+        # if check_right_for_grass(frame):
+        #     print("Detected grass on the right")
+        # else:
+        #     print("Detected road or less grass on the right")
         results = model(frame)
         largest_area = 0
+        class_name = ""
         for result in results:
             if len(result.boxes) > 1:
                 print("Warning: More than one sign detected. Ignoring all signs.")
@@ -153,6 +194,15 @@ if __name__ == "__main__":
                 if area > largest_area:
                     largest_area = area
                     largest_sign = class_name
+        if class_name.lower() == "right":
+            print("Detected right sign, cropping")
+            frame, results = crop_reprocess(picam2, model)
+            for result in results:
+                for box in result.boxes:
+                    if box:
+                        class_name = model.names[int(box.cls)]
+                        print("Secondary class: ", class_name)
+                        break
         cv2.imshow("Annotated Steering Overlay", frame)
         key = cv2.waitKey(1) & 0xFF
         if key == ord("q"):

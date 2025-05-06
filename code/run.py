@@ -1,16 +1,15 @@
-from Droid_Building.code.classes.ups import *
-import Droid_Building.code.classes.robot_controller as robot_controller
-from Droid_Building.code.classes.usb_sound_controller import USB_SoundController
-from Droid_Building.code.classes.tft_display import TFTDisplay
+from ups import *
+import robot_controller as robot_controller
+from usb_sound_controller import USB_SoundController
+from tft_display import TFTDisplay
 import signal
 import random
 import time
 import threading
-from Droid_Building.code.utils.drawings import draw_castle, draw_crest, draw_crown
+from drawings import draw_castle, draw_crest, draw_crown
 
 # Add a global flag to signal threads to stop
 stop_threads = False
-
 
 def clean():
     global stop_threads
@@ -29,9 +28,9 @@ def random_sound(sound_controller):
     sounds = [
         "sounds/whiney.wav",
         "sounds/gallop.wav",
-        "sounds/fail.mp3",
+        "sounds/fail.wav",
         "sounds/regain.wav",
-        "sounds/fanfare.mp3",
+        "sounds/fanfare.wav",
     ]
     while not stop_threads:
         sound_controller.play_audio(random.choice(sounds))

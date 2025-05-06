@@ -46,6 +46,12 @@ all_on = {
     10: 1,
     11: 1,
     12: 1,
+    13: 1,
+    14: 1,
+    15: 1,
+    16: 1,
+    17: 1,
+    18: 1,
 }
 all_off = {
     0: 0,
@@ -61,9 +67,15 @@ all_off = {
     10: 0,
     11: 0,
     12: 0,
+    13: 0,
+    14: 0,
+    15: 0,
+    16: 0,
+    17: 0,
+    18: 0,
 }
 
-led_order = [15, 14, 13, 17, 16, 3, 2, 1, 19, 18, 10, 11, 12]
+led_order = [13, 14, 15, 16, 17, 3, 2, 1, 19, 18, 10, 11, 12]
 
 
 thread_running = False  # Flag to track if pizazz is running
@@ -78,11 +90,12 @@ def fight(sound, screen, lights):
         sound.play_audio(sounds[6])
         for i in range(3):
             screen.display_bmp(images[i], position=(0, 0))
-            for num in led_order:
-                if num == 3:
-                    set_leds(lights, {num: 1, 6: 1, 9: 1})
+            for offby1 in led_order:
+                num = offby1-1
+                if num == 0:
+                    set_leds(lights, {num: 1, 3: 1, 6: 1})
                     sleep(sleep_time)
-                    set_leds(lights, {num: 0, 6: 0, 9: 0})
+                    set_leds(lights, {num: 0, 3: 0, 6: 0})
                 elif num == 2:
                     set_leds(lights, {num: 1, 5: 1, 8: 1})
                     sleep(sleep_time)
@@ -95,7 +108,7 @@ def fight(sound, screen, lights):
                     set_leds(lights, {num: 1})
                     sleep(sleep_time)
                     set_leds(lights, {num: 0})
-                sleep(sleep_time)
+                    sleep(sleep_time)
 
     except Exception as e:
         print(f"Error in fight: {e}")
@@ -141,12 +154,16 @@ def open_door(servo):
 def close_doors(left_servo, right_servo):
     global thread_running
     thread_running = True
+    print("Closing doors")
     for i in range(90):
-        left_servo.move_to(90 - i)
-        right_servo.move_to(i)
-        sleep(0.01)
-    thread_running = False
+        if i % 10 == 0:
+            left_servo.move_to(i)
+            right_servo.move_to(90-i)
+            sleep(0.2)
 
+    right_servo.move_to(0)
+    left_servo.move_to(90)
+    thread_running = False
 
 def main():
     try:
@@ -160,20 +177,20 @@ def main():
         saber.set_ramping(15)
         sleep(1)
 
-        left_servo.move_to(0)
-        right_servo.move_to(90)
         screen.display_bmp(images[3], position=(0, 0))
+        right_servo.move_to(90)
+        left_servo.move_to(0)
         sleep(2)
         sound.play_text_to_speech("Prepare for battle!")
         sleep(2)
 
         sound.play_text_to_speech("Lock the doors!")
         sleep(2)
-        Thread(target=close_doors, args=(left_servo, right_servo), daemon=True).start()
+        door_thread = Thread(target=close_doors, args=(left_servo, right_servo), daemon=True)
+        door_thread.start()
         sound.play_audio(sounds[9])
-        tick = time()
-        while (time() - tick < 6) and thread_running:
-            sleep(0.1)
+        door_thread.join()
+        sleep(1)
 
         sound.play_text_to_speech("Sound the alarm!")
         sleep(2)
@@ -185,8 +202,12 @@ def main():
             sleep(0.2)
 
         Thread(target=fight, args=(sound, screen, lights), daemon=True).start()
+        count = 0
         while thread_running:
-            sleep(0.5)
+            if count < 30:
+                turn_robot(saber, "left", speed=30, duration=0.5)
+            else:
+                turn_robot(saber, "right", speed=30, duration=0.5)
 
         clear(sound, screen, lights)
 

@@ -44,6 +44,25 @@ def recenter_on_road(saber, picam2, turn_speed=1.5):
         drive_forward(saber, speed=20, duration=1, turn=1)
         print(f"slope: {slope}, turn: {turn}")
 
+def check_left_for_grass(frame):
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    lower_green = np.array([35, 100, 130])
+    upper_green = np.array([60, 155, 255])
+    height, width = frame.shape[:2]
+    left_region = frame[:, :width // 2]  # Focus on the left half of the frame
+    mask = cv2.inRange(hsv, lower_green, upper_green)
+    left_mask = mask[:, :width // 2]  # Apply the mask to the left region
+
+    total_pixels = left_mask.size
+    green_pixels = cv2.countNonZero(left_mask)
+
+    if green_pixels > 0.5 * total_pixels:  # Adjust threshold as needed
+        print(f"Detected mostly grass on the left with {green_pixels} green pixels")
+        return True
+    else:
+        print("Detected potential road or less grass on the left")
+        return False
+
 def take_picture(picam2, screen, model, sound, detect_sign=True, display_img=True):
     """
     Returns the new steering angle unless a large enough sign is detected
@@ -150,6 +169,7 @@ if __name__ == "__main__":
                     turn_robot(saber, "left", duration=0.3)
             elif type(ret) == str:
                 print(f"Detected sign: {ret}")
+                if ret == "left":
                 follow_sign(saber, ret)
                 # sound.play_text_to_speech(f"Recentering on road")
                 # recenter_on_road(saber, cam, turn_speed=turn_speed)
